@@ -3,6 +3,9 @@ import loginAPI from './login'
 import articleAPI from './article'
 import remoteSearchAPI from './remoteSearch'
 import transactionAPI from './transaction'
+import keyword from './keyword'
+import permission from './permission'
+import functionf from './functionf'
 
 // Mock.setup({
 //   timeout: '350-600'
@@ -25,5 +28,15 @@ Mock.mock(/\/search\/user/, 'get', remoteSearchAPI.searchUser)
 
 // 账单相关
 Mock.mock(/\/transaction\/list/, 'get', transactionAPI.getList)
+
+Mock.mock(/\/keyword\/list/, 'get', keyword.getList)
+Mock.mock(/\/keyword\/create/, 'post', keyword.create)
+Mock.mock(/\/keyword\/update/, 'post', keyword.update)
+Mock.mock(/\/keyword\/delete/, 'post', keyword.delete)
+
+Mock.mock(/\/permission\/list/, 'get', permission.getList)
+Mock.mock(/\/permission\/data/, 'get', permission.getDataPermission)
+
+Mock.mock(/\/function\/list/, 'get', functionf.getList)
 
 export default Mock

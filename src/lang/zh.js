@@ -91,7 +91,7 @@ export default {
     type: '类型',
     remark: '点评',
     search: '搜索',
-    add: '添加',
+    add: '新增',
     export: '导出',
     reviewer: '审核人',
     id: '序号',
@@ -105,7 +105,8 @@ export default {
     draft: '草稿',
     delete: '删除',
     cancel: '取 消',
-    confirm: '确 定'
+    confirm: '确 定',
+    reset: '重置'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

@@ -22,7 +22,7 @@ const messages = {
 
 // 创建VueI18n实例
 const i18n = new VueI18n({
-  locale: Cookies.get('language') || 'en', // set locale
+  locale: Cookies.get('language') || 'zh', // set locale
   messages // set locale messages
 })
 

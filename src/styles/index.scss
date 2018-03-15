@@ -4,6 +4,7 @@
 @import './element-ui.scss';
 @import './sidebar.scss';
 @import './btn.scss';
+@import './tree-table.scss';
 
 body {
   height: 100%;
@@ -174,12 +175,24 @@ code {
   }
 }
 
-.filter-container {
+.header-container {
   padding-bottom: 10px;
   .filter-item {
     display: inline-block;
     vertical-align: middle;
     margin-bottom: 10px;
+    width: 180px;
+  }
+  .filter-btn {
+    display: inline-block;
+    vertical-align: middle;
+    margin-bottom: 10px;
+  }
+  .function-btn {
+    display: inline-block;
+    vertical-align: middle;
+    margin-bottom: 10px;
+    float: right;
   }
 }
 
@@ -190,4 +203,17 @@ code {
 
 .multiselect--active {
   z-index: 1000 !important;
+}
+
+.xn-table-expand {
+  font-size: 0;
+  label {
+    width: 90px;
+    color: #99a9bf;
+  }
+  .el-form-item {
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 50%;
+  }
 }

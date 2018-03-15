@@ -8,14 +8,15 @@
       </router-link>
     </scroll-pane>
     <ul class='contextmenu' v-show="visible" :style="{left:left+'px',top:top+'px'}">
-      <li @click="closeSelectedTag(selectedTag)">Close</li>
-      <li @click="closeOthersTags">Close Others</li>
-      <li @click="closeAllTags">Close All</li>
+      <li @click="closeSelectedTag(selectedTag)">关闭当前选项</li>
+      <li @click="closeOthersTags">关闭其他选项</li>
+      <li @click="closeAllTags">关闭所有选项</li>
     </ul>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import ScrollPane from '@/components/ScrollPane'
 import { generateTitle } from '@/utils/i18n'
 
@@ -30,14 +31,16 @@ export default {
     }
   },
   computed: {
+    ...mapGetters([
+      'data_permission_name'
+    ]),
     visitedViews() {
       return this.$store.state.tagsView.visitedViews
     }
   },
   watch: {
     $route() {
-      this.addViewTags()
-      this.moveToCurrentTag()
+      this.moveToCurrentTag(this.addViewTags())
     },
     visible(value) {
       if (value) {
@@ -53,13 +56,26 @@ export default {
   methods: {
     generateTitle, // generateTitle by vue-i18n
     generateRoute() {
-      if (this.$route.name) {
+      if (this.$route.meta && this.$route.meta.hidden) {
+        return false
+      }
+      if (this.$route.name && this.$route.name != 'dashboard' && this.$route.name != 'ruleItem') {
         return this.$route
+      } else if (this.$route.name && this.$route.name === 'ruleItem') {
+        // 数据权限特殊处理, 遍历数据权限重新创建tag相关数据
+        let name = this.data_permission_name(this.$route.params.id)
+        return {
+          path: this.$route.path, 
+          name: name,
+          meta: {
+            title: name
+          }
+        }
       }
       return false
     },
     isActive(route) {
-      return route.path === this.$route.path || route.name === this.$route.name
+      return (this.$route.meta.hidden && this.$route.path.indexOf(route.path) > -1) || route.path === this.$route.path || route.name === this.$route.name
     },
     addViewTags() {
       const route = this.generateRoute()
@@ -68,7 +84,10 @@ export default {
       }
       this.$store.dispatch('addVisitedViews', route)
     },
-    moveToCurrentTag() {
+    moveToCurrentTag(move = true) {
+      if (!move) {
+        return
+      }
       const tags = this.$refs.tag
       this.$nextTick(() => {
         for (const tag of tags) {
@@ -94,7 +113,7 @@ export default {
     closeOthersTags() {
       this.$router.push(this.selectedTag.path)
       this.$store.dispatch('delOthersViews', this.selectedTag).then(() => {
-        this.moveToCurrentTag()
+        this.moveToCurrentTag(true)
       })
     },
     closeAllTags() {
