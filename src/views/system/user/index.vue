@@ -93,12 +93,12 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { fetchList, createKeyword, updateKeyword, deleteKeyword } from '@/api/keyword'
+import { fetchList, createData, updateData, deleteData } from '@/api/common'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 
 export default {
-  name: 'keyword',
+  name: 'user',
   directives: {
     waves
   },
@@ -119,7 +119,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 20,
+        limit: 10,
         appId: undefined,
         type: undefined,
         list: undefined,
@@ -151,7 +151,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
+      fetchList(this.entityName, this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
         this.listLoading = false
@@ -164,7 +164,7 @@ export default {
     handleResetFilter() {
       this.listQuery = {
         page: 1,
-        limit: 20,
+        limit: 10,
         appId: undefined,
         type: undefined,
         list: undefined,
@@ -199,7 +199,7 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          createKeyword(this.temp).then(() => {
+          createData(this.entityName, this.temp).then(() => {
             this.getList()
             this.dialogFormVisible = false
             this.$notify({
@@ -224,7 +224,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          updateKeyword(tempData).then(() => {
+          updateData(this.entityName, tempData).then(() => {
             this.getList()
             this.dialogFormVisible = false
             this.$notify({
@@ -244,7 +244,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteKeyword(temp).then(() => {
+        deleteData(this.entityName, temp).then(() => {
           this.getList()
           this.$notify({
             title: '成功',

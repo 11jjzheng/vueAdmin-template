@@ -1,8 +1,8 @@
 import request from '@/utils/request'
 
-export function fetchList(query) {
+export function fetchTree(query) {
   return request({
-    url: '/function/list',
+    url: '/function/tree',
     method: 'get',
     params: query
   })

@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { fetchList } from '@/api/functionf'
+import { fetchTree } from '@/api/functionf'
 
 export default {
   name: 'functionTree',
@@ -32,10 +32,12 @@ export default {
   },
   methods: {
     getList() {
-      fetchList().then(response => {
+      fetchTree().then(response => {
         this.data = response.data
-        let temp = this.getFirstLeaf(response.data)
-        this.$router.push("/system/function/list/" + temp.id)
+        if (this.$route.path.indexOf('/system/function/list') < 0) {
+          let temp = this.getFirstLeaf(response.data[0])
+          this.$router.push("/system/function/list/" + temp.id)
+        }
       })
     },
     handleNodeClick(data) {

@@ -32,7 +32,8 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'data_permission_name'
+      'data_permission_name',
+      'addRouters'
     ]),
     visitedViews() {
       return this.$store.state.tagsView.visitedViews
@@ -55,9 +56,36 @@ export default {
   },
   methods: {
     generateTitle, // generateTitle by vue-i18n
+    getRouteParent(routes, name, rootPath = '') {
+      let temp = rootPath
+      for (let route of routes) {
+        temp = rootPath + route.path + "/"
+        if (route.children) {
+          for (let child of route.children) {
+            if (!child.children && child.name === name) {
+              return {
+                path: temp, 
+                name: route.name,
+                meta: {
+                  title: route.meta.title
+                }
+              }
+            } else {
+              let result = this.getRouteParent(route.children, name, temp)
+              if (result) {
+                return result
+              }
+            }
+          }
+        }
+      }
+      return false
+    },
     generateRoute() {
       if (this.$route.meta && this.$route.meta.hidden) {
-        return false
+        // 如果是不显示的子tab，尝试显示父tab
+        let route = this.getRouteParent(this.addRouters, this.$route.name)
+        return route
       }
       if (this.$route.name && this.$route.name != 'dashboard' && this.$route.name != 'ruleItem') {
         return this.$route

@@ -11,7 +11,7 @@
         
         <template v-for="data in data_permission">
           <router-link :to="item.path+'/ruleItem/'+data.id" :key="item.children.path+'/'+data.id">
-            <el-menu-item :index="item.path+'/ruleItem/'+data.id" :class="{'submenu-title-noDropdown':!isNest}">
+            <el-menu-item :index="item.path+'/ruleItem/'+data.id" :class="{'submenu-title-noDropdown':false}">
               <svg-icon v-if="item.meta&&item.meta.icon" :icon-class="item.meta.icon"></svg-icon>
               <span v-if="item.meta&&item.meta.title">{{data.name}}</span>
             </el-menu-item>
