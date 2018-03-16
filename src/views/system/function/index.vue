@@ -70,6 +70,5 @@ export default {
   width: 240px;
   height: 100%;
   position: fixed;
-  z-index: 1001;
 }
 </style>
