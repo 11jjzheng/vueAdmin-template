@@ -1,23 +1,28 @@
 <template>
-  <el-container class="tree-table-wrapper">
-    <el-aside width="240px">
-      <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick" highlight-current default-expand-all :expand-on-click-node="false" class="tree-container"></el-tree>
-    </el-aside>
-    <el-main>
+  <div>
+    <div class="tree-container">
+      <!-- <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick" highlight-current default-expand-all :expand-on-click-node="false" class="tree-container"></el-tree> -->
+      <zTree></zTree>
+    </div>
+    <div class="tree-main-container">
       <transition name="fade" mode="out-in">
         <keep-alive>
           <router-view></router-view>
         </keep-alive>
       </transition>
-    </el-main>
-  </el-container>
+    </div>
+  </div>
 </template>
 
 <script>
+import zTree from './zTree.vue'
 import { fetchTree } from '@/api/functionf'
 
 export default {
   name: 'functionTree',
+  components: {
+    zTree
+  },
   data() {
     return {
       data: [],
@@ -54,4 +59,17 @@ export default {
 </script>
 
 <style scoped>
+.tree-main-container {
+  min-height: 100%;
+  transition: margin-left 0.28s;
+  margin-left: 240px;
+}
+.tree-container {
+  background-color: white;
+  transition: width 0.28s;
+  width: 240px;
+  height: 100%;
+  position: fixed;
+  z-index: 1001;
+}
 </style>

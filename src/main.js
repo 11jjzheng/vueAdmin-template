@@ -19,6 +19,10 @@ import './mock' // simulation data
 
 import * as filters from './filters' // global filters
 
+import $ from 'jquery'
+import './vendor/jquery.js'
+import './vendor/JQuery-zTree-v3.5.15/jquery.ztree.all-3.5.min.js'
+
 Vue.use(Element, {
   size: 'medium', // set element-ui default size
   i18n: (key, value) => i18n.t(key, value) // element 国际化兼容 vue-i18n 6.x 以上版本

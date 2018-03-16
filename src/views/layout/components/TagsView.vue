@@ -64,7 +64,7 @@ export default {
           for (let child of route.children) {
             if (!child.children && child.name === name) {
               return {
-                path: temp, 
+                path: temp.substring(0, temp.length - 1), 
                 name: route.name,
                 meta: {
                   title: route.meta.title
@@ -120,6 +120,7 @@ export default {
       this.$nextTick(() => {
         for (const tag of tags) {
           if (tag.to === this.$route.path) {
+            console.log(tag)
             this.$refs.scrollPane.moveToTarget(tag.$el)
             break
           }
