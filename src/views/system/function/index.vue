@@ -1,8 +1,7 @@
 <template>
   <div>
     <div class="tree-container">
-      <!-- <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick" highlight-current default-expand-all :expand-on-click-node="false" class="tree-container"></el-tree> -->
-      <zTree></zTree>
+      <z-tree @onZTreeClick="onTreeClick"></z-tree>
     </div>
     <div class="tree-main-container">
       <transition name="fade" mode="out-in">
@@ -25,17 +24,17 @@ export default {
   },
   data() {
     return {
-      data: [],
-      defaultProps: {
-        children: 'children',
-        label: 'label'
-      }
+      data: []
     };
   },
   mounted() {
     this.getList()
   },
   methods: {
+    onTreeClick(treeNode) {
+      console.log(this)
+      console.log(treeNode)
+    },
     getList() {
       fetchTree().then(response => {
         this.data = response.data

@@ -31,3 +31,11 @@ export function deleteData(entityName, data) {
     data
   })
 }
+
+export function fetchTree(url, data) {
+  return request({
+    url: url,
+    method: 'get',
+    data
+  })
+}
