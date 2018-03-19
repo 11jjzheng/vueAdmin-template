@@ -1,110 +1,49 @@
 import Mock from 'mockjs'
 
 const List = [
-{
-  id: 1,
-  label: '规则配置',
-  children: [{
-    id: 2,
-  	label: '规则项列表'
-  }]
-}, 
-{
-  id: 3,
-  label: '参数配置',
-  children: [{
-    id: 4,
-    label: '规则参数'
-  }, 
-  {
-    id: 5,
-    label: '评分卡等级'
-  }, 
-  {
-    id: 6,
-    label: '关键字'
-  }]
-}, 
-{
-  id: 7,
-  label: '规则管理',
-  children: [{
-    id: 8,
-    label: '规则管理',
-    children: [{
-      id: 9,
-      label: '规则集列表'
-    },
-    {
-      id: 10,
-      label: '预处理列表'
-    },
-    {
-      id: 11,
-      label: '规则逻辑列表'
-    }]
-  }, 
-  {
-    id: 12,
-    label: '常用数据管理',
-    children: [{
-      id: 13,
-      label: '渠道列表'
-    },
-    {
-      id: 14,
-      label: '城市列表'
-    },
-    {
-      id: 15,
-      label: '白名单列表'
-    },
-    {
-      id: 16,
-      label: '城市等级列表'
-    }]
-  }]
-}, 
-{
-  id: 17,
-  label: '规则结果',
-  children: [{
-    id: 18,
-    label: '原始数据列表'
-  }, 
-  {
-    id: 19,
-    label: '规则结果集列表'
-  }, 
-  {
-    id: 20,
-    label: '拒绝名单列表'
-  }]
-}, 
-{
-  id: 21,
-  label: '系统管理',
-  children: [{
-    id: 22,
-    label: '用户列表'
-  }, 
-  {
-    id: 23,
-    label: '功能管理'
-  }, 
-  {
-    id: 24,
-    label: '角色管理'
-  }, 
-  {
-    id: 25,
-    label: '操作日志'
-  }, 
-  {
-    id: 26,
-    label: '组织管理'
-  }]
-}
+{ id:1, name:"父节点1 - 展开", open:true,
+  children: [
+    { id:2, name:"父节点11 - 折叠",
+      children: [
+        { id:3, name:"叶子节点111"},
+        { id:4, name:"叶子节点112"},
+        { id:5, name:"叶子节点113"},
+        { id:6, name:"叶子节点114"}
+      ]},
+    { id:7, name:"父节点12 - 折叠",
+      children: [
+        { id:8, name:"叶子节点121"},
+        { id:9, name:"叶子节点122"},
+        { id:10, name:"叶子节点123"},
+        { id:11, name:"叶子节点124"}
+      ]},
+    { id:12, name:"父节点13 - 没有子节点", isParent:true}
+  ]},
+{ id:13, name:"父节点2 - 折叠",
+  children: [
+    { id:14, name:"父节点21 - 展开", open:true,
+      children: [
+        { id:15, name:"叶子节点211"},
+        { id:16, name:"叶子节点212"},
+        { id:17, name:"叶子节点213"},
+        { id:18, name:"叶子节点214"}
+      ]},
+    { id:20, name:"父节点22 - 折叠",
+      children: [
+        { id:21, name:"叶子节点221"},
+        { id:22, name:"叶子节点222"},
+        { id:23, name:"叶子节点223"},
+        { id:24, name:"叶子节点224"}
+      ]},
+    { id:25, name:"父节点23 - 折叠",
+      children: [
+        { id:26, name:"叶子节点231"},
+        { id:27, name:"叶子节点232"},
+        { id:28, name:"叶子节点233"},
+        { id:29, name:"叶子节点234"}
+      ]}
+  ]},
+{ id:30, name:"父节点3 - 没有子节点", isParent:true}
 ]
 
 export default {

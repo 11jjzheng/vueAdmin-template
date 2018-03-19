@@ -4,9 +4,9 @@ import keyword from './keyword'
 import permission from './permission'
 import functionf from './functionf'
 
-// Mock.setup({
-//   timeout: '350-600'
-// })
+Mock.setup({
+  timeout: '350-600'
+})
 
 // 登录相关
 Mock.mock(/\/login\/login/, 'post', loginAPI.loginByUsername)

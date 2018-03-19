@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="tree-container">
-      <z-tree @onZTreeClick="onTreeClick"></z-tree>
+      <z-tree ref="functionTree" treeId="function-tree" url="/function/tree" @onTreeInited="onTreeInited" @onTreeClick="onTreeClick"></z-tree>
     </div>
     <div class="tree-main-container">
       <transition name="fade" mode="out-in">
@@ -14,8 +14,7 @@
 </template>
 
 <script>
-import zTree from './zTree.vue'
-import { fetchTree } from '@/api/functionf'
+import zTree from '@/components/ZTree/index.vue'
 
 export default {
   name: 'functionTree',
@@ -27,31 +26,15 @@ export default {
       data: []
     };
   },
-  mounted() {
-    this.getList()
-  },
   methods: {
-    onTreeClick(treeNode) {
-      console.log(this)
-      console.log(treeNode)
-    },
-    getList() {
-      fetchTree().then(response => {
-        this.data = response.data
-        if (this.$route.path.indexOf('/system/function/list') < 0) {
-          let temp = this.getFirstLeaf(response.data[0])
-          this.$router.push("/system/function/list/" + temp.id)
-        }
-      })
-    },
-    handleNodeClick(data) {
-      this.$router.push("/system/function/list/" + data.id)
-    },
-    getFirstLeaf(node) {
-      if (!node.children) {
-        return node
+    onTreeInited() {
+      if (this.$route.path.indexOf('/system/function/list') < 0) {
+        let temp = this.$refs.functionTree.getFirstNode()
+        this.$router.push("/system/function/list/" + temp.id)
       }
-      return this.getFirstLeaf(node.children[0])
+    },
+    onTreeClick(data) {
+      this.$router.push("/system/function/list/" + data.treeNode.id)
     }
   }
 }

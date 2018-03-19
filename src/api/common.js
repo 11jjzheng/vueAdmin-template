@@ -33,6 +33,9 @@ export function deleteData(entityName, data) {
 }
 
 export function fetchTree(url, data) {
+  if (url.indexOf("/") != 0) {
+    url = "/" + url
+  }
   return request({
     url: url,
     method: 'get',

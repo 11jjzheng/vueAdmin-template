@@ -1,13 +1,9 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="header-container">
-      <el-select clearable class="filter-item" v-model="listQuery.appId" placeholder="业务ID">
-        <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
-        </el-option>
-      </el-select>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="关键字类型" v-model="listQuery.type">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="编号" v-model="listQuery.code">
       </el-input>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="关键字列表" v-model="listQuery.list">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="名称" v-model="listQuery.name">
       </el-input>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-refresh" @click="handleResetFilter">{{$t('table.reset')}}</el-button>
@@ -15,42 +11,39 @@
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." border stripe fit highlight-current-row style="width: 100%">
-      <el-table-column type="expand">
-        <template slot-scope="scope">
-          <el-form label-position="left" inline class="xn-table-expand">
-            <el-form-item label="创建时间">
-              <span>{{ scope.row.fCreateTime }}</span>
-            </el-form-item>
-            <el-form-item label="创建人">
-              <span>{{ scope.row.fCreateUser }}</span>
-            </el-form-item>
-            <el-form-item label="更新时间">
-              <span>{{ scope.row.fUpdateTime }}</span>
-            </el-form-item>
-            <el-form-item label="更新人">
-              <span>{{ scope.row.fUpdateUser }}</span>
-            </el-form-item>
-          </el-form>
-        </template>
-      </el-table-column>
       <el-table-column width="65" align="center" :label="$t('table.id')">
         <template slot-scope="scope">
-          <span>{{scope.row.fAutoId}}</span>
+          <span>{{scope.row.id}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" label="业务ID">
+      <el-table-column width="150px" align="center" label="编号">
         <template slot-scope="scope">
-          <span>{{scope.row.fAppId}}</span>
+          <span>{{scope.row.code}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="400px" align="center" label="关键字类型">
+      <el-table-column width="400px" align="center" label="名称">
         <template slot-scope="scope">
-          <span>{{scope.row.fType}}</span>
+          <span>{{scope.row.name}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="关键字列表">
+      <el-table-column min-width="450px" align="center" label="URL">
         <template slot-scope="scope">
-          <span>{{scope.row.fKeywordList}}</span>
+          <span>{{scope.row.url}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column min-width="450px" align="center" label="类型">
+        <template slot-scope="scope">
+          <span>{{scope.row.type}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column min-width="450px" align="center" label="图标">
+        <template slot-scope="scope">
+          <span>{{scope.row.icon}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column min-width="450px" align="center" label="仅全局可见">
+        <template slot-scope="scope">
+          <span>{{scope.row.global}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="120px" class-name="small-padding fixed-width" fixed="right">
