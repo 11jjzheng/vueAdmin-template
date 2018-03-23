@@ -120,7 +120,6 @@ export default {
       this.$nextTick(() => {
         for (const tag of tags) {
           if (tag.to === this.$route.path) {
-            console.log(tag)
             this.$refs.scrollPane.moveToTarget(tag.$el)
             break
           }

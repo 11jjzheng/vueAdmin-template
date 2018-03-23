@@ -92,170 +92,34 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { fetchList, createData, updateData, deleteData } from '@/api/common'
 import waves from '@/directive/waves' // 水波纹指令
-import { parseTime } from '@/utils'
+import tableUtil from '@/utils/tableUtil'
 
 export default {
-  name: 'ruleSetParam',
+  name: 'keyword',
   directives: {
     waves
   },
-  computed: {
-    ...mapGetters([
-      'function_permission',
-      'create_permission',
-      'update_permission',
-      'delete_permission'
-    ])
-  },
+  mixins: [tableUtil],
   data() {
     return {
-      entityName: 'ruleItem',
-      tableKey: 0,
-      list: null,
-      total: null,
-      listLoading: true,
+      entityName: 'keyword',
       listQuery: {
-        page: 1,
-        limit: 10,
         appId: undefined,
         type: undefined,
-        list: undefined,
-        sort: '+id'
+        list: undefined
       },
-      appIdOptions: ['credit-ndf'],
       temp: {
         fAutoId: undefined,
         fAppId: '',
         fType: '',
         fKeywordList: ''
       },
-      dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: '编辑',
-        create: '新增'
-      },
       rules: {
         fAppId: [{ required: true, message: '业务ID必选', trigger: 'change' }],
         fType: [{ required: true, message: '类型必填', trigger: 'blur' }],
         fKeywordList: [{ required: true, message: '列表必填', trigger: 'blur' }]
       }
-    }
-  },
-  created() {
-    this.getList()
-  },
-  methods: {
-    getList() {
-      this.listLoading = true
-      fetchList(this.entityName, this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
-        this.listLoading = false
-      })
-    },
-    handleFilter() {
-      this.listQuery.page = 1
-      this.getList()
-    },
-    handleResetFilter() {
-      this.listQuery = {
-        page: 1,
-        limit: 10,
-        appId: undefined,
-        type: undefined,
-        list: undefined,
-        sort: '+id'
-      }
-      this.getList()
-    },
-    handleSizeChange(val) {
-      this.listQuery.limit = val
-      this.getList()
-    },
-    handleCurrentChange(val) {
-      this.listQuery.page = val
-      this.getList()
-    },
-    resetTemp() {
-      this.temp = {
-        fAutoId: undefined,
-        fAppId: '',
-        fType: '',
-        fKeywordList: ''
-      }
-    },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          createData(this.entityName, this.temp).then(() => {
-            this.getList()
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '创建成功',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          updateData(this.entityName, tempData).then(() => {
-            this.getList()
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '更新成功',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleDelete(row) {
-      let temp = Object.assign({}, row)
-      this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        deleteData(this.entityName, temp).then(() => {
-          this.getList()
-          this.$notify({
-            title: '成功',
-            message: '删除成功',
-            type: 'success',
-            duration: 2000
-          })
-        })
-      }).catch(() => {
-
-      });
     }
   }
 }

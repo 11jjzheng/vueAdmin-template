@@ -1,13 +1,9 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="header-container">
-      <el-select clearable class="filter-item" v-model="listQuery.appId" placeholder="业务ID">
-        <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
-        </el-option>
-      </el-select>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="关键字类型" v-model="listQuery.type">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="工号" v-model="listQuery.jobNumber">
       </el-input>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="关键字列表" v-model="listQuery.list">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="名称" v-model="listQuery.name">
       </el-input>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-refresh" @click="handleResetFilter">{{$t('table.reset')}}</el-button>
@@ -19,67 +15,66 @@
         <template slot-scope="scope">
           <el-form label-position="left" inline class="xn-table-expand">
             <el-form-item label="创建时间">
-              <span>{{ scope.row.fCreateTime }}</span>
+              <span>{{ scope.row.createTime }}</span>
             </el-form-item>
             <el-form-item label="创建人">
-              <span>{{ scope.row.fCreateUser }}</span>
+              <span>{{ scope.row.createUser }}</span>
             </el-form-item>
             <el-form-item label="更新时间">
-              <span>{{ scope.row.fUpdateTime }}</span>
+              <span>{{ scope.row.updateTime }}</span>
             </el-form-item>
             <el-form-item label="更新人">
-              <span>{{ scope.row.fUpdateUser }}</span>
+              <span>{{ scope.row.updateUser }}</span>
             </el-form-item>
           </el-form>
         </template>
       </el-table-column>
-      <el-table-column width="65" align="center" :label="$t('table.id')">
+      <el-table-column width="200px" align="center" label="组织">
         <template slot-scope="scope">
-          <span>{{scope.row.fAutoId}}</span>
+          <span>{{scope.row.orgName}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" label="业务ID">
+      <el-table-column width="200px" align="center" label="工号">
         <template slot-scope="scope">
-          <span>{{scope.row.fAppId}}</span>
+          <span>{{scope.row.jobNumber}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="400px" align="center" label="关键字类型">
+      <el-table-column align="center" label="名称">
         <template slot-scope="scope">
-          <span>{{scope.row.fType}}</span>
+          <span>{{scope.row.name}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="关键字列表">
+      <el-table-column align="center" :label="$t('table.actions')" width="260px" class-name="small-padding fixed-width" fixed="right">
         <template slot-scope="scope">
-          <span>{{scope.row.fKeywordList}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" :label="$t('table.actions')" width="120px" class-name="small-padding fixed-width" fixed="right">
-        <template slot-scope="scope">
-          <el-button v-if="update_permission(entityName)" type="primary" size="mini" class="xn-btn-mini" icon="el-icon-edit" @click="handleUpdate(scope.row)"></el-button>
-          <el-button v-if="delete_permission(entityName)" type="danger" size="mini" class="xn-btn-mini" icon="el-icon-delete" @click="handleDelete(scope.row)"></el-button>
+          <el-button v-if="update_permission(entityName)" type="primary" class="xn-btn-mini" icon="el-icon-edit" @click="handleUpdate(scope.row)"></el-button>
+          <el-button v-if="delete_permission(entityName)" type="danger" class="xn-btn-mini" icon="el-icon-delete" @click="handleDelete(scope.row)"></el-button>
+          <el-button v-if="function_permission(entityName, 'role')" type="success" icon="el-icon-setting" @click="handleRole(scope.row)">角色</el-button>
+          <el-button v-if="function_permission(entityName, 'permission')" type="warning" icon="el-icon-view" @click="handlePermission(scope.row)">权限</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <div class="pagination-container">
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30,50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" 
+        :current-page="listQuery.page" :page-sizes="[10,20,30,50]" :page-size="listQuery.limit" 
+        layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%" :close-on-click-modal="false">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
-        <el-form-item label="业务ID" prop="fAppId">
-          <el-select class="filter-item" v-model="temp.fAppId" placeholder="请选择">
-            <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
+        <el-form-item label="组织" prop="orgId">
+          <el-select class="filter-item" v-model="temp.orgId" placeholder="请选择">
+            <el-option v-for="item in orgOptions" :key="item" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="关键字类型" prop="fType">
-          <el-input v-model="temp.fType"></el-input>
+        <el-form-item label="工号" prop="jobNumber">
+          <el-input v-model="temp.jobNumber"></el-input>
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="关键字列表" prop="fKeywordList">
-          <el-input v-model="temp.fKeywordList"></el-input>
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="temp.name"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -88,156 +83,114 @@
         <el-button v-else type="primary" @click="updateData">{{$t('table.confirm')}}</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog title="角色" :visible.sync="dialogRoleVisible" :close-on-click-modal="false">
+      <el-button @click="handleRoleAdd" type="primary" icon="el-icon-plus" style="float:right;margin-bottom:10px;">添加</el-button>
+      <el-table :key='roleTableKey' :data="roleList" v-loading="roleListLoading" element-loading-text="加载中..." border stripe fit highlight-current-row style="width: 100%">
+        <el-table-column width="200px" align="center" label="编号">
+          <template slot-scope="scope">
+            <span>{{scope.row.code}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" label="名称">
+          <template slot-scope="scope">
+            <span>{{scope.row.name}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" :label="$t('table.actions')" width="100px" class-name="small-padding fixed-width" fixed="right">
+          <template slot-scope="scope">
+            <el-button type="danger" class="xn-btn-mini" icon="el-icon-delete" @click="handleRoleDelete(scope.row)"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-dialog
+        title="选择角色"
+        :visible.sync="dialogChooseRoleVisible"
+        append-to-body>
+        <el-table :key='chooseRoleTableKey' :data="chooseRoleList" v-loading="chooseRoleListLoading" element-loading-text="加载中..." border stripe fit highlight-current-row style="width: 100%">
+          <el-table-column width="200px" align="center" label="编号">
+            <template slot-scope="scope">
+              <span>{{scope.row.code}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="名称">
+            <template slot-scope="scope">
+              <span>{{scope.row.name}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" :label="$t('table.actions')" width="100px" class-name="small-padding fixed-width" fixed="right">
+            <template slot-scope="scope">
+              <el-button type="success" class="xn-btn-mini" icon="el-icon-plus" @click="handleRoleAdding(scope.row)"></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        </el-dialog>
+    </el-dialog>
+
+    <el-dialog title="权限" :visible.sync="permissionDialogFormVisible" width="30%">
+      <z-tree treeId="permission-tree" url="/function/tree"></z-tree>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { fetchList, createData, updateData, deleteData } from '@/api/common'
 import waves from '@/directive/waves' // 水波纹指令
-import { parseTime } from '@/utils'
+import tableUtil from '@/utils/tableUtil'
+import zTree from '@/components/ZTree/index.vue'
 
 export default {
   name: 'user',
   directives: {
     waves
   },
-  computed: {
-    ...mapGetters([
-      'function_permission',
-      'create_permission',
-      'update_permission',
-      'delete_permission'
-    ])
+  components: {
+    zTree
   },
+  mixins: [tableUtil],
   data() {
     return {
-      entityName: 'ruleItem',
-      tableKey: 0,
-      list: null,
-      total: null,
-      listLoading: true,
+      entityName: 'user',
       listQuery: {
-        page: 1,
-        limit: 10,
-        appId: undefined,
-        type: undefined,
-        list: undefined,
-        sort: '+id'
+        jobNumber: undefined,
+        name: undefined
       },
-      appIdOptions: ['credit-ndf'],
       temp: {
-        fAutoId: undefined,
-        fAppId: '',
-        fType: '',
-        fKeywordList: ''
-      },
-      dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: '编辑',
-        create: '新增'
+        jobNumber: undefined,
+        name: undefined,
+        orgId: undefined
       },
       rules: {
-        fAppId: [{ required: true, message: '业务ID必选', trigger: 'change' }],
-        fType: [{ required: true, message: '类型必填', trigger: 'blur' }],
-        fKeywordList: [{ required: true, message: '列表必填', trigger: 'blur' }]
-      }
+        jobNumber: [{ required: true, message: '工号必填', trigger: 'change' }],
+        name: [{ required: true, message: '名称必填', trigger: 'blur' }],
+        orgId: [{ required: true, message: '组织必选', trigger: 'change' }]
+      },
+      dialogRoleVisible: false,
+      roleTableKey: 1,
+      roleListLoading: false,
+      roleList: [{code: 'admin', name: '管理员'}],
+      dialogChooseRoleVisible: false,
+      chooseRoleTableKey: 2,
+      chooseRoleListLoading: false,
+      chooseRoleList: [{code: 'visitor', name: '访问者'}],
+      permissionDialogFormVisible: false
     }
   },
-  created() {
-    this.getList()
-  },
   methods: {
-    getList() {
-      this.listLoading = true
-      fetchList(this.entityName, this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
-        this.listLoading = false
-      })
-    },
-    handleFilter() {
-      this.listQuery.page = 1
-      this.getList()
-    },
-    handleResetFilter() {
-      this.listQuery = {
-        page: 1,
-        limit: 10,
-        appId: undefined,
-        type: undefined,
-        list: undefined,
-        sort: '+id'
-      }
-      this.getList()
-    },
-    handleSizeChange(val) {
-      this.listQuery.limit = val
-      this.getList()
-    },
-    handleCurrentChange(val) {
-      this.listQuery.page = val
-      this.getList()
-    },
     resetTemp() {
       this.temp = {
-        fAutoId: undefined,
-        fAppId: '',
-        fType: '',
-        fKeywordList: ''
+        jobNumber: undefined,
+        name: undefined,
+        orgId: undefined
       }
     },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
+    handleRole(row) {
+      let temp = Object.assign({}, row)
+      this.dialogRoleVisible = true
     },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          createData(this.entityName, this.temp).then(() => {
-            this.getList()
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '创建成功',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
+    handleRoleAdd() {
+      this.dialogChooseRoleVisible = true
     },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          updateData(this.entityName, tempData).then(() => {
-            this.getList()
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '更新成功',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleDelete(row) {
+    handleRoleDelete(row) {
       let temp = Object.assign({}, row)
       this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -256,6 +209,14 @@ export default {
       }).catch(() => {
 
       });
+    },
+    handleRoleAdding(row) {
+      let temp = Object.assign({}, row)
+      this.dialogChooseRoleVisible = false
+    },
+    handlePermission(row) {
+      let temp = Object.assign({}, row)
+      this.permissionDialogFormVisible = true
     }
   }
 }
@@ -263,7 +224,6 @@ export default {
 
 <style scoped>
 .xn-btn-mini {
-  padding: 5px 5px;
   width: 40px;
 }
 </style>

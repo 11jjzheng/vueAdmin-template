@@ -5,7 +5,7 @@
       <el-button @click="refreshTree" type="text" size="mini" class="refresh-btn" icon="el-icon-refresh" :loading="loading"></el-button>
     </div>
     <div id="ztree-div" style="padding-left:10px;padding-top:5px;">
-      <ul id="ztree" class="ztree"></ul>
+      <ul :id="treeId" class="ztree"></ul>
     </div>
   </div>
 </template>
@@ -39,16 +39,24 @@ export default {
         }
       }
     },
-    url: String
+    url: String,
+    data: Array
   },
   mounted() {
     this.loading = true
-    fetchTree(this.url).then(response => {
+    if (this.url != undefined) {
+      fetchTree(this.url).then(response => {
+        this.loading = false
+        this.zNodes = response.data
+        this.ztreeObj = $.fn.zTree.init($("#" + this.treeId), this.setting, this.zNodes)
+        this.$emit("onTreeInited")
+      })
+    } else {
       this.loading = false
-      this.zNodes = response.data
-      this.ztreeObj = $.fn.zTree.init($("#ztree"), this.setting, this.zNodes)
+      this.zNodes = this.data
+      this.ztreeObj = $.fn.zTree.init($("#" + this.treeId), this.setting, this.zNodes)
       this.$emit("onTreeInited")
-    })
+    }
   },
   data: function() {
     return {
@@ -81,8 +89,6 @@ export default {
       this.$emit("onTreeClick", {'event': event, 'treeId': treeId, 'treeNode': treeNode})
     },
     getFirstNode() {
-      console.log("firstNode")
-      console.log(this.ztreeObj.getNodes()[0])
       return this.ztreeObj.getNodes()[0]
     },
     getNodes() {

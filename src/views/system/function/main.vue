@@ -21,29 +21,29 @@
           <span>{{scope.row.code}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="400px" align="center" label="名称">
+      <el-table-column width="150px" align="center" label="名称">
         <template slot-scope="scope">
           <span>{{scope.row.name}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="URL">
+      <el-table-column min-width="250px" align="center" label="URL">
         <template slot-scope="scope">
           <span>{{scope.row.url}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="类型">
+      <el-table-column min-width="50px" align="center" label="类型">
         <template slot-scope="scope">
-          <span>{{scope.row.type}}</span>
+          <span>{{scope.row.type | typeFilter}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="图标">
+      <el-table-column min-width="50px" align="center" label="图标">
         <template slot-scope="scope">
           <span>{{scope.row.icon}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="仅全局可见">
+      <el-table-column min-width="50px" align="center" label="仅全局可见">
         <template slot-scope="scope">
-          <span>{{scope.row.global}}</span>
+          <span>{{scope.row.global | globalFilter}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="120px" class-name="small-padding fixed-width" fixed="right">
@@ -59,20 +59,34 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
-        <el-form-item label="业务ID" prop="fAppId">
-          <el-select class="filter-item" v-model="temp.fAppId" placeholder="请选择">
-            <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="关键字类型" prop="fType">
-          <el-input v-model="temp.fType"></el-input>
+        <el-form-item label="编号" prop="code">
+          <el-input v-model="temp.code"></el-input>
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="关键字列表" prop="fKeywordList">
-          <el-input v-model="temp.fKeywordList"></el-input>
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="temp.name"></el-input>
+        </el-form-item>
+        <el-form-item label="URL" prop="url">
+          <el-input v-model="temp.url"></el-input>
+        </el-form-item>
+        <el-form-item label="类型" prop="type">
+          <el-select class="filter-item" v-model="temp.type">
+            <el-option label="一级导航" :value="1"></el-option>
+            <el-option label="二级导航" :value="2"></el-option>
+            <el-option label="三级导航" :value="3"></el-option>
+            <el-option label="页面功能" :value="4"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="图标" prop="icon">
+          <el-input v-model="temp.icon"></el-input>
+        </el-form-item>
+        <el-form-item label="仅全局可见" prop="global">
+          <el-select class="filter-item" v-model="temp.global">
+            <el-option label="否" :value="0"></el-option>
+            <el-option label="是" :value="1"></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -85,170 +99,82 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { fetchList, createData, updateData, deleteData } from '@/api/common'
 import waves from '@/directive/waves' // 水波纹指令
-import { parseTime } from '@/utils'
+import tableUtil from '@/utils/tableUtil'
+
+const typeMap = {
+  1: '一级导航',
+  2: '二级导航',
+  3: '三级导航',
+  4: '页面功能'
+}
 
 export default {
   name: 'function',
   directives: {
     waves
   },
-  computed: {
-    ...mapGetters([
-      'function_permission',
-      'create_permission',
-      'update_permission',
-      'delete_permission'
-    ])
-  },
+  mixins: [tableUtil],
   data() {
     return {
-      entityName: 'ruleItem',
-      tableKey: 0,
-      list: null,
-      total: null,
-      listLoading: true,
+      entityName: 'function',
       listQuery: {
-        page: 1,
-        limit: 10,
-        appId: undefined,
-        type: undefined,
-        list: undefined,
-        sort: '+id'
+        code: undefined,
+        name: undefined,
+        parentId: this.$route.params.parentId
       },
-      appIdOptions: ['credit-ndf'],
       temp: {
-        fAutoId: undefined,
-        fAppId: '',
-        fType: '',
-        fKeywordList: ''
-      },
-      dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: '编辑',
-        create: '新增'
+        id: undefined,
+        code: undefined,
+        name: undefined,
+        url: undefined,
+        type: undefined,
+        icon: undefined,
+        global: 0,
+        parentId: this.$route.params.parentId
       },
       rules: {
-        fAppId: [{ required: true, message: '业务ID必选', trigger: 'change' }],
-        fType: [{ required: true, message: '类型必填', trigger: 'blur' }],
-        fKeywordList: [{ required: true, message: '列表必填', trigger: 'blur' }]
+        code: [{ required: true, message: '编码必填', trigger: 'blur' }],
+        name: [{ required: true, message: '名称必填', trigger: 'blur' }],
+        url: [{ required: true, message: 'URL必填', trigger: 'blur' }],
+        type: [{ required: true, message: '类型必选', trigger: 'change' }]
       }
     }
   },
-  created() {
-    this.getList()
-  },
   methods: {
-    getList() {
-      this.listLoading = true
-      fetchList(this.entityName, this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
-        this.listLoading = false
-      })
-    },
-    handleFilter() {
-      this.listQuery.page = 1
-      this.getList()
-    },
     handleResetFilter() {
       this.listQuery = {
         page: 1,
         limit: 10,
-        appId: undefined,
-        type: undefined,
-        list: undefined,
-        sort: '+id'
+        sort: '+id',
+        code: undefined,
+        name: undefined,
+        parentId: this.$route.params.parentId
       }
-      this.getList()
-    },
-    handleSizeChange(val) {
-      this.listQuery.limit = val
-      this.getList()
-    },
-    handleCurrentChange(val) {
-      this.listQuery.page = val
       this.getList()
     },
     resetTemp() {
       this.temp = {
-        fAutoId: undefined,
-        fAppId: '',
-        fType: '',
-        fKeywordList: ''
+        id: undefined,
+        code: undefined,
+        name: undefined,
+        url: undefined,
+        type: undefined,
+        icon: undefined,
+        global: 0,
+        parentId: this.$route.params.parentId
       }
+    }
+  },
+  filters: {
+    typeFilter(type) {
+      return typeMap[type]
     },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          createData(this.entityName, this.temp).then(() => {
-            this.getList()
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '创建成功',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    updateData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          updateData(this.entityName, tempData).then(() => {
-            this.getList()
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '更新成功',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleDelete(row) {
-      let temp = Object.assign({}, row)
-      this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        deleteData(this.entityName, temp).then(() => {
-          this.getList()
-          this.$notify({
-            title: '成功',
-            message: '删除成功',
-            type: 'success',
-            duration: 2000
-          })
-        })
-      }).catch(() => {
-
-      });
+    globalFilter(global) {
+      if (global == 1) {
+        return '是'
+      }
+      return '否'
     }
   }
 }
@@ -256,7 +182,6 @@ export default {
 
 <style scoped>
 .xn-btn-mini {
-  padding: 5px 5px;
   width: 40px;
 }
 </style>

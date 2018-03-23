@@ -60,7 +60,7 @@ const List = [
 }, 
 {
   name: 'user', 
-  functions: ['create', 'update', 'delete']
+  functions: ['create', 'update', 'delete', 'role', 'permission']
 }, 
 {
   name: 'function', 
@@ -68,7 +68,7 @@ const List = [
 }, 
 {
   name: 'role', 
-  functions: ['create', 'update', 'delete']
+  functions: ['create', 'update', 'delete', 'function-permission', 'data-permission']
 }, 
 {
   name: 'log', 

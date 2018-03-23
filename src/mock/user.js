@@ -6,23 +6,23 @@ const count = 100
 
 for (let i = 0; i < count; i++) {
   List.push(Mock.mock({
-    fAutoId: '@increment',
-    fAppId: 'credit-ndf',
-    fType: '@title(5, 10)',
-    fKeywordList: '@title(5, 10)',
-    fCreateTime: new Date(),
-    fCreateUser: 'xn071829',
-    fUpdateTime: new Date(),
-    fUpdateUser: 'xn071829'
+    jobNumber: 'xn071829',
+    name: '郑嘉俊',
+    orgId: '1',
+    orgName: '牛鼎丰',
+    createTime: new Date(),
+    createUser: 'xn071829',
+    updateTime: new Date(),
+    updateUser: 'xn071829'
   }))
 }
 
 export default {
   getList: config => {
 
-    const { appId, list, type, page = 1, limit = 20, sort } = param2Obj(config.url)
+   const { jobNumber, name, page = 1, limit = 20, sort } = param2Obj(config.url)
 
-    let mockList = List.filter(item => {
+/*     let mockList = List.filter(item => {
       if (appId && item.fAppId !== appId) return false
       if (type && item.fType !== type) return false
       if (list && item.fKeywordList.indexOf(list) < 0) return false
@@ -31,12 +31,12 @@ export default {
 
     if (sort === '-id') {
       mockList = mockList.reverse()
-    }
+    }*/
 
-    const pageList = mockList.filter((item, index) => index < limit * page && index >= limit * (page - 1))
+    const pageList = List.filter((item, index) => index < limit * page && index >= limit * (page - 1))
 
     return {
-      total: mockList.length,
+      total: List.length,
       items: pageList
     }
   },

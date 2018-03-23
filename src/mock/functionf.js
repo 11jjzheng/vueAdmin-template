@@ -1,4 +1,5 @@
 import Mock from 'mockjs'
+import { param2Obj } from '@/utils'
 
 const List = [
 { id:1, name:"父节点1 - 展开", open:true,
@@ -46,9 +47,59 @@ const List = [
 { id:30, name:"父节点3 - 没有子节点", isParent:true}
 ]
 
+const childList = []
+const count = 100
+
+for (let i = 0; i < count; i++) {
+  childList.push(Mock.mock({
+    id: '@increment',
+    code: 'test-function',
+    name: '测试功能',
+    url: '/test/test/test',
+    type: 1,
+    icon: '',
+    global: 0,
+    createTime: new Date(),
+    createUser: 'xn071829',
+    updateTime: new Date(),
+    updateUser: 'xn071829'
+  }))
+}
+
 export default {
   getList: config => {
 
     return List
-  }
+  },
+  getChildList: config => {
+
+   const { code, name, parentId, page = 1, limit = 20, sort } = param2Obj(config.url)
+
+/*     let mockList = List.filter(item => {
+      if (appId && item.fAppId !== appId) return false
+      if (type && item.fType !== type) return false
+      if (list && item.fKeywordList.indexOf(list) < 0) return false
+      return true
+    })
+
+    if (sort === '-id') {
+      mockList = mockList.reverse()
+    }*/
+
+    const pageList = childList.filter((item, index) => index < limit * page && index >= limit * (page - 1))
+
+    return {
+      total: childList.length,
+      items: pageList
+    }
+  },
+  create: () => ({
+    data: 'success'
+  }),
+  update: () => ({
+    data: 'success'
+  }),
+  delete: () => ({
+    data: 'success'
+  })
 }

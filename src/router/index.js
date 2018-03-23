@@ -295,7 +295,7 @@ export const asyncRouterMap = [
         },
         children: [
           {
-            path: 'list/:id',
+            path: 'list/:parentId',
             component: _import('system/function/main'),
             name: 'functionList',
             meta: {
