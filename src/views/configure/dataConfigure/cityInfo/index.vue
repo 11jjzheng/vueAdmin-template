@@ -1,17 +1,10 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="header-container">
-      <el-select clearable class="filter-item" v-model="listQuery.appId" placeholder="业务ID">
-        <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
-        </el-option>
-      </el-select>
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="代码" v-model="listQuery.code">
+      </el-input>
       <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="名称" v-model="listQuery.name">
       </el-input>
-      <el-select clearable class="filter-item" v-model="listQuery.classification" placeholder="等级">
-        <el-option label="A" value="A"></el-option>
-        <el-option label="B" value="B"></el-option>
-        <el-option label="C" value="C"></el-option>
-      </el-select>
       <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="省份" v-model="listQuery.province">
       </el-input>
       <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="行政级别" v-model="listQuery.level">
@@ -22,14 +15,9 @@
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." border stripe fit highlight-current-row style="width: 100%">
-      <el-table-column width="150px" align="center" label="业务ID">
+      <el-table-column width="65" align="center" label="代码">
         <template slot-scope="scope">
-          <span>{{scope.row.fAppId}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column width="80px" align="center" label="分类">
-        <template slot-scope="scope">
-          <span>{{scope.row.fClassification}}</span>
+          <span>{{scope.row.fCityCode}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="150px" align="center" label="名称">
@@ -37,22 +25,22 @@
           <span>{{scope.row.fCityName}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" label="简称">
+      <el-table-column width="200px" align="center" label="简称">
         <template slot-scope="scope">
           <span>{{scope.row.fCityNameAbbreviate}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" label="所属省份">
+      <el-table-column width="200px" align="center" label="所属省份">
         <template slot-scope="scope">
           <span>{{scope.row.fProvinceName}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="80px" align="center" label="省份代码">
+      <el-table-column width="100px" align="center" label="省份代码">
         <template slot-scope="scope">
           <span>{{scope.row.fProvinceCode}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="80px" align="center" label="行政级别">
+      <el-table-column width="100px" align="center" label="行政级别">
         <template slot-scope="scope">
           <span>{{scope.row.fAdministrationLevel}}</span>
         </template>
@@ -72,22 +60,28 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
-        <el-form-item label="业务ID" prop="fAppId">
-          <el-select class="filter-item" v-model="temp.fAppId" placeholder="请选择">
-            <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="代码" prop="fCode">
-          <el-input v-model="temp.fCode"></el-input>
+        <el-form-item label="代码" prop="fCityCode">
+          <el-input v-model="temp.fCityCode"></el-input>
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="分类" prop="fClassification">
-          <el-select v-model="temp.fClassification" placeholder="分类">
-            <el-option label="A" value="A"></el-option>
-            <el-option label="B" value="B"></el-option>
-            <el-option label="C" value="C"></el-option>
-          </el-select>
+        <el-form-item label="名称" prop="fCityName">
+          <el-input v-model="temp.fCityName"></el-input>
+        </el-form-item>
+        <el-form-item label="简称" prop="fCityNameAbbreviate">
+          <el-input v-model="temp.fCityNameAbbreviate"></el-input>
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="所属省份" prop="fProvinceName">
+          <el-input v-model="temp.fProvinceName"></el-input>
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="省份代码" prop="fProvinceCode">
+          <el-input v-model="temp.fProvinceCode"></el-input>
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="行政级别" prop="fAdministrationLevel">
+          <el-input v-model="temp.fAdministrationLevel"></el-input>
+          </el-date-picker>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -104,30 +98,34 @@ import waves from '@/directive/waves' // 水波纹指令
 import tableUtil from '@/utils/tableUtil'
 
 export default {
-  name: 'cityClassificationMapping',
+  name: 'cityInfo',
   directives: {
     waves
   },
   mixins: [tableUtil],
   data() {
     return {
-      entityName: 'cityClassificationMapping',
+      entityName: 'cityInfo',
       listQuery: {
-        appId: undefined,
+        code: undefined,
         name: undefined,
-        classification: undefined,
         province: undefined,
         level: undefined
       },
       temp: {
-        fAutoId: undefined,
-        fCode: '',
-        fClassification: ''
+        fCityCode: undefined,
+        fCityName: '',
+        fCityNameAbbreviate: '',
+        fProvinceName: '',
+        fProvinceCode: '',
+        fAdministrationLevel: ''
       },
       rules: {
-        fAppId: [{ required: true, message: '业务ID必选', trigger: 'change' }],
-        fCode: [{ required: true, message: '代码必填', trigger: 'blur' }],
-        fClassification: [{ required: true, message: '分类必选', trigger: 'change' }]
+        fCityCode: [{ required: true, message: '代码必填', trigger: 'blur' }],
+        fCityName: [{ required: true, message: '名称必填', trigger: 'blur' }],
+        fProvinceName: [{ required: true, message: '所属省份必填', trigger: 'blur' }],
+        fProvinceCode: [{ required: true, message: '省份代码必填', trigger: 'blur' }],
+        fAdministrationLevel: [{ required: true, message: '行政级别必填', trigger: 'blur' }]
       }
     }
   }

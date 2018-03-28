@@ -5,9 +5,11 @@
         <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
         </el-option>
       </el-select>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="关键字类型" v-model="listQuery.type">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="姓名" v-model="listQuery.name">
       </el-input>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="关键字列表" v-model="listQuery.list">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="身份证号" v-model="listQuery.idcard">
+      </el-input>
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="手机号" v-model="listQuery.phone">
       </el-input>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-refresh" @click="handleResetFilter">{{$t('table.reset')}}</el-button>
@@ -33,24 +35,44 @@
           </el-form>
         </template>
       </el-table-column>
-      <el-table-column width="65" align="center" :label="$t('table.id')">
-        <template slot-scope="scope">
-          <span>{{scope.row.fAutoId}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column width="150px" align="center" label="业务ID">
+      <el-table-column width="100px" align="center" label="业务ID">
         <template slot-scope="scope">
           <span>{{scope.row.fAppId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="400px" align="center" label="关键字类型">
+      <el-table-column width="80px" align="center" label="姓名">
+        <template slot-scope="scope">
+          <span>{{scope.row.fName}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="200px" align="center" label="身份证号">
+        <template slot-scope="scope">
+          <span>{{scope.row.fIdNum}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="120px" align="center" label="手机号">
+        <template slot-scope="scope">
+          <span>{{scope.row.fMobile}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="200px" align="center" label="公司">
+        <template slot-scope="scope">
+          <span>{{scope.row.fCompany}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="150px" align="center" label="职位">
+        <template slot-scope="scope">
+          <span>{{scope.row.fPosition}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="70px" align="center" label="类型">
         <template slot-scope="scope">
           <span>{{scope.row.fType}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="关键字列表">
+      <el-table-column min-width="80px" align="center" label="备注">
         <template slot-scope="scope">
-          <span>{{scope.row.fKeywordList}}</span>
+          <span>{{scope.row.fRemark}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="120px" class-name="small-padding fixed-width" fixed="right">
@@ -74,12 +96,27 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="关键字类型" prop="fType">
-          <el-input v-model="temp.fType"></el-input>
+        <el-form-item label="身份证号" prop="fidNum">
+          <el-input v-model="temp.fidNum"></el-input>
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="关键字列表" prop="fKeywordList">
-          <el-input v-model="temp.fKeywordList"></el-input>
+        <el-form-item label="姓名" prop="fName">
+          <el-input v-model="temp.fName"></el-input>
+        </el-form-item>
+        <el-form-item label="手机号" prop="fMobile">
+          <el-input v-model="temp.fMobile"></el-input>
+        </el-form-item>
+        <el-form-item label="公司" prop="fCompany">
+          <el-input v-model="temp.fCompany"></el-input>
+        </el-form-item>
+        <el-form-item label="职位" prop="fPosition">
+          <el-input v-model="temp.fPosition"></el-input>
+        </el-form-item>
+        <el-form-item label="分类" prop="fType">
+          <el-input v-model="temp.fType"></el-input>
+        </el-form-item>
+        <el-form-item label="备注" prop="fRemark">
+          <el-input v-model="temp.fRemark"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -96,38 +133,45 @@ import waves from '@/directive/waves' // 水波纹指令
 import tableUtil from '@/utils/tableUtil'
 
 export default {
-  name: 'keyword',
+  name: 'whiteList',
   directives: {
     waves
   },
   mixins: [tableUtil],
   data() {
     return {
-      entityName: 'keyword',
+      entityName: 'whiteList',
+      ruleSetOptions: [{id:"testRule",name:"测试规则集"}],
+      appIdOptions: ["credit-ndf"],
       listQuery: {
         appId: undefined,
-        type: undefined,
-        list: undefined
+        name: undefined,
+        idcard: undefined,
+        phone: undefined
       },
       temp: {
-        fAutoId: undefined,
-        fAppId: '',
-        fType: '',
-        fKeywordList: ''
+        fAppId: undefined,
+        fidNum: undefined,
+        fName: undefined,
+        fMobile: undefined,
+        fCompany: undefined,
+        fPosition: undefined,
+        fType: undefined,
+        fRemark: undefined
       },
       rules: {
         fAppId: [{ required: true, message: '业务ID必选', trigger: 'change' }],
-        fType: [{ required: true, message: '类型必填', trigger: 'blur' }],
-        fKeywordList: [{ required: true, message: '列表必填', trigger: 'blur' }]
+        fidNum: [{ required: true, message: '身份证号必填', trigger: 'blur' }]
       }
     }
+  },
+  filters: {
   }
 }
 </script>
 
 <style scoped>
 .xn-btn-mini {
-  padding: 5px 5px;
   width: 40px;
 }
 </style>

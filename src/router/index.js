@@ -187,13 +187,13 @@ export const asyncRouterMap = [
             }
           },
           {
-            path: 'city',
-            component: _import('configure/dataConfigure/city/index'),
-            name: 'city',
+            path: 'cityInfo',
+            component: _import('configure/dataConfigure/cityInfo/index'),
+            name: 'cityInfo',
             meta: {
               title: '城市列表',
               icon: 'form',
-              name: 'configure/dataConfigure/city'
+              name: 'configure/dataConfigure/cityInfo'
             }
           },
           {

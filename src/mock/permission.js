@@ -35,7 +35,7 @@ const List = [
   functions: ['create', 'update', 'delete']
 }, 
 {
-  name: 'city', 
+  name: 'cityInfo', 
   functions: ['create', 'update', 'delete']
 }, 
 {

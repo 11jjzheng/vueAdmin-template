@@ -21,7 +21,13 @@ export default {
       jsonEditor: false
     }
   },
-  props: ['value'],
+  props: {
+    value: String,
+    readOnly: {
+      type: Boolean,
+      default: false
+    }
+  },
   watch: {
     value(value) {
       const editor_value = this.jsonEditor.getValue()
@@ -36,10 +42,11 @@ export default {
       mode: 'application/json',
       gutters: ['CodeMirror-lint-markers'],
       theme: 'rubyblue',
-      lint: true
+      lint: true,
+      readOnly: this.readOnly
     })
 
-    this.jsonEditor.setValue(JSON.stringify(this.value, null, 2))
+    this.jsonEditor.setValue(JSON.stringify(JSON.parse(this.value), null, 2))
     this.jsonEditor.on('change', cm => {
       this.$emit('changed', cm.getValue())
       this.$emit('input', cm.getValue())
