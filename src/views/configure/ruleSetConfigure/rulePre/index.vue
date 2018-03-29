@@ -1,13 +1,11 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="header-container">
-      <el-select clearable class="filter-item" v-model="listQuery.appId" placeholder="业务ID">
-        <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
-        </el-option>
-      </el-select>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="关键字类型" v-model="listQuery.type">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="参数" v-model="listQuery.variable">
       </el-input>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="关键字列表" v-model="listQuery.list">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="处理器" v-model="listQuery.preClass">
+      </el-input>
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="备注" v-model="listQuery.remark">
       </el-input>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-refresh" @click="handleResetFilter">{{$t('table.reset')}}</el-button>
@@ -33,30 +31,25 @@
           </el-form>
         </template>
       </el-table-column>
-      <el-table-column width="65" align="center" :label="$t('table.id')">
+      <el-table-column width="200px" align="center" label="参数">
         <template slot-scope="scope">
-          <span>{{scope.row.fAutoId}}</span>
+          <span>{{scope.row.fRuleVariable}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" label="业务ID">
+      <el-table-column width="200px" align="center" label="处理器">
         <template slot-scope="scope">
-          <span>{{scope.row.fAppId}}</span>
+          <span>{{scope.row.fPreClass}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="400px" align="center" label="关键字类型">
+      <el-table-column min-width="400px" align="center" label="备注">
         <template slot-scope="scope">
-          <span>{{scope.row.fType}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column min-width="450px" align="center" label="关键字列表">
-        <template slot-scope="scope">
-          <span>{{scope.row.fKeywordList}}</span>
+          <span>{{scope.row.fRemark}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="120px" class-name="small-padding fixed-width" fixed="right">
         <template slot-scope="scope">
-          <el-button v-if="update_permission(entityName)" type="primary" size="mini" class="xn-btn-mini" icon="el-icon-edit" @click="handleUpdate(scope.row)"></el-button>
-          <el-button v-if="delete_permission(entityName)" type="danger" size="mini" class="xn-btn-mini" icon="el-icon-delete" @click="handleDelete(scope.row)"></el-button>
+          <el-button v-if="update_permission(entityName)" type="primary" class="xn-btn-mini" icon="el-icon-edit" @click="handleUpdate(scope.row)"></el-button>
+          <el-button v-if="delete_permission(entityName)" type="danger" class="xn-btn-mini" icon="el-icon-delete" @click="handleDelete(scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -68,18 +61,15 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
-        <el-form-item label="业务ID" prop="fAppId">
-          <el-select class="filter-item" v-model="temp.fAppId" placeholder="请选择">
-            <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="关键字类型" prop="fType">
-          <el-input v-model="temp.fType"></el-input>
+        <el-form-item label="参数" prop="fRuleVariable">
+          <el-input v-model="temp.fRuleVariable"></el-input>
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="关键字列表" prop="fKeywordList">
-          <el-input v-model="temp.fKeywordList"></el-input>
+        <el-form-item label="处理器" prop="fPreClass">
+          <el-input v-model="temp.fPreClass"></el-input>
+        </el-form-item>
+        <el-form-item label="备注" prop="fRemark">
+          <el-input v-model="temp.fRemark"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -96,29 +86,27 @@ import waves from '@/directive/waves' // 水波纹指令
 import tableUtil from '@/utils/tableUtil'
 
 export default {
-  name: 'keyword',
+  name: 'rulePre',
   directives: {
     waves
   },
   mixins: [tableUtil],
   data() {
     return {
-      entityName: 'keyword',
+      entityName: 'rulePre',
       listQuery: {
-        appId: undefined,
-        type: undefined,
-        list: undefined
+        variable: undefined,
+        preClass: undefined,
+        remark: undefined
       },
       temp: {
-        fAutoId: undefined,
-        fAppId: '',
-        fType: '',
-        fKeywordList: ''
+        fRuleVariable: undefined,
+        fPreClass: '',
+        fRemark: ''
       },
       rules: {
-        fAppId: [{ required: true, message: '业务ID必选', trigger: 'change' }],
-        fType: [{ required: true, message: '类型必填', trigger: 'blur' }],
-        fKeywordList: [{ required: true, message: '列表必填', trigger: 'blur' }]
+        fRuleVariable: [{ required: true, message: '参数必填', trigger: 'blur' }],
+        fPreClass: [{ required: true, message: '处理器必填', trigger: 'blur' }]
       }
     }
   }
@@ -127,7 +115,6 @@ export default {
 
 <style scoped>
 .xn-btn-mini {
-  padding: 5px 5px;
   width: 40px;
 }
 </style>

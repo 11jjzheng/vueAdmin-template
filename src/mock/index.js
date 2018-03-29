@@ -12,6 +12,12 @@ import ruleResult from './ruleResult'
 import cityClassificationMapping from './cityClassificationMapping'
 import whiteList from './whiteList'
 import cityInfo from './cityInfo'
+import channel from './channel'
+import ruleSet from './ruleSet'
+import ruleSetInput from './ruleSetInput'
+import rulePre from './rulePre'
+import ruleItemLogic from './ruleItemLogic'
+import scoreCardDegree from './scoreCardDegree'
 
 Mock.setup({
   timeout: '350-600'
@@ -61,6 +67,11 @@ Mock.mock(/\/rejectList\/create/, 'post', rejectList.create)
 Mock.mock(/\/rejectList\/update/, 'post', rejectList.update)
 Mock.mock(/\/rejectList\/delete/, 'post', rejectList.delete)
 
+Mock.mock(/\/ruleResult\/list/, 'get', ruleResult.getList)
+Mock.mock(/\/ruleResult\/create/, 'post', ruleResult.create)
+Mock.mock(/\/ruleResult\/update/, 'post', ruleResult.update)
+Mock.mock(/\/ruleResult\/delete/, 'post', ruleResult.delete)
+
 Mock.mock(/\/cityClassificationMapping\/list/, 'get', cityClassificationMapping.getList)
 Mock.mock(/\/cityClassificationMapping\/create/, 'post', cityClassificationMapping.create)
 Mock.mock(/\/cityClassificationMapping\/update/, 'post', cityClassificationMapping.update)
@@ -75,5 +86,35 @@ Mock.mock(/\/cityInfo\/list/, 'get', cityInfo.getList)
 Mock.mock(/\/cityInfo\/create/, 'post', cityInfo.create)
 Mock.mock(/\/cityInfo\/update/, 'post', cityInfo.update)
 Mock.mock(/\/cityInfo\/delete/, 'post', cityInfo.delete)
+
+Mock.mock(/\/channel\/list/, 'get', channel.getList)
+Mock.mock(/\/channel\/create/, 'post', channel.create)
+Mock.mock(/\/channel\/update/, 'post', channel.update)
+Mock.mock(/\/channel\/delete/, 'post', channel.delete)
+
+Mock.mock(/\/ruleSet\/list/, 'get', ruleSet.getList)
+Mock.mock(/\/ruleSet\/create/, 'post', ruleSet.create)
+Mock.mock(/\/ruleSet\/update/, 'post', ruleSet.update)
+Mock.mock(/\/ruleSet\/delete/, 'post', ruleSet.delete)
+
+Mock.mock(/\/ruleSetInput\/list/, 'get', ruleSetInput.getList)
+Mock.mock(/\/ruleSetInput\/create/, 'post', ruleSetInput.create)
+Mock.mock(/\/ruleSetInput\/update/, 'post', ruleSetInput.update)
+Mock.mock(/\/ruleSetInput\/delete/, 'post', ruleSetInput.delete)
+
+Mock.mock(/\/rulePre\/list/, 'get', rulePre.getList)
+Mock.mock(/\/rulePre\/create/, 'post', rulePre.create)
+Mock.mock(/\/rulePre\/update/, 'post', rulePre.update)
+Mock.mock(/\/rulePre\/delete/, 'post', rulePre.delete)
+
+Mock.mock(/\/ruleItemLogic\/list/, 'get', ruleItemLogic.getList)
+Mock.mock(/\/ruleItemLogic\/create/, 'post', ruleItemLogic.create)
+Mock.mock(/\/ruleItemLogic\/update/, 'post', ruleItemLogic.update)
+Mock.mock(/\/ruleItemLogic\/delete/, 'post', ruleItemLogic.delete)
+
+Mock.mock(/\/scoreCardDegree\/list/, 'get', scoreCardDegree.getList)
+Mock.mock(/\/scoreCardDegree\/create/, 'post', scoreCardDegree.create)
+Mock.mock(/\/scoreCardDegree\/update/, 'post', scoreCardDegree.update)
+Mock.mock(/\/scoreCardDegree\/delete/, 'post', scoreCardDegree.delete)
 
 export default Mock

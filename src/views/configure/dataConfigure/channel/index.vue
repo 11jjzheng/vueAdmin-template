@@ -45,20 +45,25 @@
           <span>{{scope.row.fAppId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="400px" align="center" label="关键字类型">
+      <el-table-column width="400px" align="center" label="名称">
         <template slot-scope="scope">
-          <span>{{scope.row.fType}}</span>
+          <span>{{scope.row.fChannelName}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="关键字列表">
+      <el-table-column min-width="450px" align="center" label="ID">
         <template slot-scope="scope">
-          <span>{{scope.row.fKeywordList}}</span>
+          <span>{{scope.row.fChannelId}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column min-width="450px" align="center" label="系数">
+        <template slot-scope="scope">
+          <span>{{scope.row.fCoefficient}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="120px" class-name="small-padding fixed-width" fixed="right">
         <template slot-scope="scope">
-          <el-button v-if="update_permission(entityName)" type="primary" size="mini" class="xn-btn-mini" icon="el-icon-edit" @click="handleUpdate(scope.row)"></el-button>
-          <el-button v-if="delete_permission(entityName)" type="danger" size="mini" class="xn-btn-mini" icon="el-icon-delete" @click="handleDelete(scope.row)"></el-button>
+          <el-button v-if="update_permission(entityName)" type="primary" class="xn-btn-mini" icon="el-icon-edit" @click="handleUpdate(scope.row)"></el-button>
+          <el-button v-if="delete_permission(entityName)" type="danger" class="xn-btn-mini" icon="el-icon-delete" @click="handleDelete(scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -76,12 +81,15 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="关键字类型" prop="fType">
-          <el-input v-model="temp.fType"></el-input>
+        <el-form-item label="名称" prop="fChannelName">
+          <el-input v-model="temp.fChannelName"></el-input>
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="关键字列表" prop="fKeywordList">
-          <el-input v-model="temp.fKeywordList"></el-input>
+        <el-form-item label="ID" prop="fChannelId">
+          <el-input v-model="temp.fChannelId"></el-input>
+        </el-form-item>
+        <el-form-item label="系数" prop="fCoefficient">
+          <el-input v-model="temp.fCoefficient"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -98,29 +106,32 @@ import waves from '@/directive/waves' // 水波纹指令
 import tableUtil from '@/utils/tableUtil'
 
 export default {
-  name: 'keyword',
+  name: 'channel',
   directives: {
     waves
   },
   mixins: [tableUtil],
   data() {
     return {
-      entityName: 'keyword',
+      entityName: 'channel',
       listQuery: {
         appId: undefined,
-        type: undefined,
-        list: undefined
+        name: undefined,
+        id: undefined,
+        coefficient: undefined
       },
       temp: {
         fAutoId: undefined,
         fAppId: '',
-        fType: '',
-        fKeywordList: ''
+        fChannelName: '',
+        fChannelId: '',
+        fCoefficient: ''
       },
       rules: {
         fAppId: [{ required: true, message: '业务ID必选', trigger: 'change' }],
-        fType: [{ required: true, message: '类型必填', trigger: 'blur' }],
-        fKeywordList: [{ required: true, message: '列表必填', trigger: 'blur' }]
+        fChannelName: [{ required: true, message: '名称必填', trigger: 'blur' }],
+        fChannelId: [{ required: true, message: 'ID必填', trigger: 'blur' }],
+        fCoefficient: [{ required: true, message: '系数必填', trigger: 'blur' }]
       }
     }
   }
@@ -129,7 +140,6 @@ export default {
 
 <style scoped>
 .xn-btn-mini {
-  padding: 5px 5px;
   width: 40px;
 }
 </style>

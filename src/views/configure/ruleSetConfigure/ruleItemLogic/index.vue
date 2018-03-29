@@ -1,13 +1,9 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="header-container">
-      <el-select clearable class="filter-item" v-model="listQuery.appId" placeholder="业务ID">
-        <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
-        </el-option>
-      </el-select>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="关键字类型" v-model="listQuery.type">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="表达式" v-model="listQuery.ruleExpression">
       </el-input>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="关键字列表" v-model="listQuery.list">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="说明" v-model="listQuery.remark">
       </el-input>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-refresh" @click="handleResetFilter">{{$t('table.reset')}}</el-button>
@@ -15,48 +11,40 @@
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." border stripe fit highlight-current-row style="width: 100%">
-      <el-table-column type="expand">
-        <template slot-scope="scope">
-          <el-form label-position="left" inline class="xn-table-expand">
-            <el-form-item label="创建时间">
-              <span>{{ scope.row.fCreateTime }}</span>
-            </el-form-item>
-            <el-form-item label="创建人">
-              <span>{{ scope.row.fCreateUser }}</span>
-            </el-form-item>
-            <el-form-item label="更新时间">
-              <span>{{ scope.row.fUpdateTime }}</span>
-            </el-form-item>
-            <el-form-item label="更新人">
-              <span>{{ scope.row.fUpdateUser }}</span>
-            </el-form-item>
-          </el-form>
-        </template>
-      </el-table-column>
       <el-table-column width="65" align="center" :label="$t('table.id')">
         <template slot-scope="scope">
           <span>{{scope.row.fAutoId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" label="业务ID">
+      <el-table-column min-width="450px" align="center" label="表达式">
         <template slot-scope="scope">
-          <span>{{scope.row.fAppId}}</span>
+          <span>{{scope.row.fRuleExpression}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="400px" align="center" label="关键字类型">
+      <el-table-column width="400px" align="center" label="说明">
         <template slot-scope="scope">
-          <span>{{scope.row.fType}}</span>
+          <span>{{scope.row.fRemark}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="关键字列表">
+      <el-table-column width="200px" align="center" label="常量列表">
         <template slot-scope="scope">
-          <span>{{scope.row.fKeywordList}}</span>
+          <span>{{scope.row.fRuleParamList}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="200px" align="center" label="变量列表">
+        <template slot-scope="scope">
+          <span>{{scope.row.fRuleVariableList}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="100px" align="center" label="黑名单类型">
+        <template slot-scope="scope">
+          <span>{{scope.row.fBlacklistType | blacklistTypeFilter}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="120px" class-name="small-padding fixed-width" fixed="right">
         <template slot-scope="scope">
-          <el-button v-if="update_permission(entityName)" type="primary" size="mini" class="xn-btn-mini" icon="el-icon-edit" @click="handleUpdate(scope.row)"></el-button>
-          <el-button v-if="delete_permission(entityName)" type="danger" size="mini" class="xn-btn-mini" icon="el-icon-delete" @click="handleDelete(scope.row)"></el-button>
+          <el-button v-if="update_permission(entityName)" type="primary" class="xn-btn-mini" icon="el-icon-edit" @click="handleUpdate(scope.row)"></el-button>
+          <el-button v-if="delete_permission(entityName)" type="danger" class="xn-btn-mini" icon="el-icon-delete" @click="handleDelete(scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -67,19 +55,31 @@
     </div>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
-        <el-form-item label="业务ID" prop="fAppId">
-          <el-select class="filter-item" v-model="temp.fAppId" placeholder="请选择">
-            <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="关键字类型" prop="fType">
-          <el-input v-model="temp.fType"></el-input>
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="160px">
+        <el-form-item label="表达式" prop="fRuleExpression" placeholder="表达式编写请查看语法手册">
+          <el-input type="textarea" v-model="temp.fRuleExpression"></el-input>
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="关键字列表" prop="fKeywordList">
-          <el-input v-model="temp.fKeywordList"></el-input>
+        <el-form-item label="变量列表(';' 号分割)：" prop="fRuleVariableList" placeholder="形如'age;sex', 每个参数名使用';'分割即可">
+          <el-input v-model="temp.fRuleVariableList"></el-input>
+        </el-form-item>
+        <el-form-item label="参数列表(';' 号分割)：" prop="fRuleParamList" placeholder="形如'M;N'">
+          <el-input v-model="temp.fRuleParamList"></el-input>
+        </el-form-item>
+        <el-form-item label="命中描述" prop="fRemark" placeholder="当规则命中时, 此描述存入结果中, 可使用规则参数如 '年龄不大于' + M + '岁', M为一个规则参数">
+          <el-input type="textarea" v-model="temp.fRemark"></el-input>
+        </el-form-item>
+        <el-form-item label="黑名单类型：" prop="fRuleParamList">
+          <el-select class="filter-item" v-model="temp.fBlacklistType" placeholder="请选择">
+            <el-option :value="0" label="无分类(默认)"></el-option>
+            <el-option :value="1" label="外部机构输入"></el-option>
+            <el-option :value="2" label="牛贷系严重逾期"></el-option>
+            <el-option :value="3" label="骗贷中介"></el-option>
+            <el-option :value="4" label="赌博、吸毒、犯罪黑名单"></el-option>
+            <el-option :value="5" label="集团线下黑名单"></el-option>
+            <el-option :value="6" label="贷后提报欺诈"></el-option>
+            <el-option :value="7" label="其他类"></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -95,31 +95,47 @@
 import waves from '@/directive/waves' // 水波纹指令
 import tableUtil from '@/utils/tableUtil'
 
+const blackListTypeMap = {
+  0:'无分类(默认)',
+  1:'外部机构输入',
+  2:'牛贷系严重逾期',
+  3:'骗贷中介',
+  4:'赌博、吸毒、犯罪黑名单',
+  5:'集团线下黑名单',
+  6:'贷后提报欺诈',
+  7:'其他类'
+}
+
 export default {
-  name: 'keyword',
+  name: 'ruleItemLogic',
   directives: {
     waves
   },
   mixins: [tableUtil],
   data() {
     return {
-      entityName: 'keyword',
+      entityName: 'ruleItemLogic',
       listQuery: {
-        appId: undefined,
-        type: undefined,
-        list: undefined
+        ruleExpression: undefined,
+        remark: undefined
       },
       temp: {
         fAutoId: undefined,
-        fAppId: '',
-        fType: '',
-        fKeywordList: ''
+        fRuleExpression: '',
+        fRuleVariableList: '',
+        fRuleParamList: '',
+        fRemark: '',
+        fBlacklistType: ''
       },
       rules: {
-        fAppId: [{ required: true, message: '业务ID必选', trigger: 'change' }],
-        fType: [{ required: true, message: '类型必填', trigger: 'blur' }],
-        fKeywordList: [{ required: true, message: '列表必填', trigger: 'blur' }]
+        fRuleExpression: [{ required: true, message: '表达式必填', trigger: 'blur' }],
+        fRuleVariableList: [{ required: true, message: '变量列表必填', trigger: 'blur' }]
       }
+    }
+  },
+  filters: {
+    blacklistTypeFilter(blackListType) {
+      return blackListTypeMap[blackListType]
     }
   }
 }
@@ -127,7 +143,6 @@ export default {
 
 <style scoped>
 .xn-btn-mini {
-  padding: 5px 5px;
   width: 40px;
 }
 </style>

@@ -20,7 +20,7 @@ const List = [
 },
 {
   name: 'ruleSet', 
-  functions: ['create', 'update', 'delete']
+  functions: ['create', 'update', 'delete', 'import', 'export', 'check']
 }, 
 {
   name: 'rulePre', 

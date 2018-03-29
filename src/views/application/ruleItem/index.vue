@@ -1,13 +1,15 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="header-container">
-      <el-select clearable class="filter-item" v-model="listQuery.appId" placeholder="业务ID">
-        <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
-        </el-option>
-      </el-select>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="关键字类型" v-model="listQuery.type">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="说明" v-model="listQuery.remark">
       </el-input>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="关键字列表" v-model="listQuery.list">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="表达式" v-model="listQuery.expression">
+      </el-input>
+      <el-select clearable class="filter-item" v-model="listQuery.status" placeholder="状态">
+        <el-option label="启用" :value="1"></el-option>
+        <el-option label="停用" :value="2"></el-option>
+      </el-select>
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="创建人" v-model="listQuery.createUser">
       </el-input>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-refresh" @click="handleResetFilter">{{$t('table.reset')}}</el-button>
@@ -38,19 +40,19 @@
           <span>{{scope.row.fAutoId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" label="业务ID">
+      <el-table-column width="80px" align="center" label="排序">
         <template slot-scope="scope">
-          <span>{{scope.row.fAppId}}</span>
+          <span>{{scope.row.fOrder}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="400px" align="center" label="关键字类型">
+      <el-table-column width="400px" align="center" label="说明">
         <template slot-scope="scope">
-          <span>{{scope.row.fType}}</span>
+          <span>{{scope.row.fRemark}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="关键字列表">
+      <el-table-column min-width="450px" align="center" label="表达式">
         <template slot-scope="scope">
-          <span>{{scope.row.fKeywordList}}</span>
+          <span>{{scope.row.fExpression}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="120px" class-name="small-padding fixed-width" fixed="right">
@@ -65,29 +67,6 @@
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30,50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
-
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
-        <el-form-item label="业务ID" prop="fAppId">
-          <el-select class="filter-item" v-model="temp.fAppId" placeholder="请选择">
-            <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="关键字类型" prop="fType">
-          <el-input v-model="temp.fType"></el-input>
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="关键字列表" prop="fKeywordList">
-          <el-input v-model="temp.fKeywordList"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">{{$t('table.cancel')}}</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">{{$t('table.confirm')}}</el-button>
-        <el-button v-else type="primary" @click="updateData">{{$t('table.confirm')}}</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -96,29 +75,25 @@ import waves from '@/directive/waves' // 水波纹指令
 import tableUtil from '@/utils/tableUtil'
 
 export default {
-  name: 'keyword',
+  name: 'ruleItem',
   directives: {
     waves
   },
   mixins: [tableUtil],
   data() {
     return {
-      entityName: 'keyword',
+      entityName: 'ruleItem',
       listQuery: {
-        appId: undefined,
-        type: undefined,
-        list: undefined
+        remark: undefined,
+        expression: undefined,
+        status: undefined,
+        createUser: undefined
       },
       temp: {
         fAutoId: undefined,
         fAppId: '',
         fType: '',
         fKeywordList: ''
-      },
-      rules: {
-        fAppId: [{ required: true, message: '业务ID必选', trigger: 'change' }],
-        fType: [{ required: true, message: '类型必填', trigger: 'blur' }],
-        fKeywordList: [{ required: true, message: '列表必填', trigger: 'blur' }]
       }
     }
   }
@@ -127,7 +102,6 @@ export default {
 
 <style scoped>
 .xn-btn-mini {
-  padding: 5px 5px;
   width: 40px;
 }
 </style>
