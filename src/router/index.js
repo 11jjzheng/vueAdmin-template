@@ -62,12 +62,12 @@ export const asyncRouterMap = [
     path: '/application',
     component: Layout,
     name: 'application',
-    meta: { title: '规则配置', icon: 'chart', name: 'application/ruleItem' },
+    meta: { title: '规则配置', icon: 'chart', name: 'route/ruleengine/ruleItem/list' },
     children: [{
       path: 'ruleItem/:id',
       component: _import('application/ruleItem/index'),
       name: 'ruleItem',
-      meta: { title: '规则配置', icon: 'chart', name: 'application/ruleItem' }
+      meta: { title: '规则配置', icon: 'chart', name: 'common/ruleSet' }
     }]
   },
 
@@ -88,7 +88,7 @@ export const asyncRouterMap = [
         meta: {
           title: '规则参数',
           icon: 'form',
-          name: 'param/ruleSetParam'
+          name: 'route/ruleengine/ruleParam/list'
         }
       },
       {
@@ -98,7 +98,7 @@ export const asyncRouterMap = [
         meta: {
           title: '评分卡等级',
           icon: 'form',
-          name: 'param/scoreCardDegree'
+          name: 'route/ruleengine/scoreCardDegree/list'
         }
       },
       {
@@ -108,7 +108,7 @@ export const asyncRouterMap = [
         meta: {
           title: '关键字',
           icon: 'form',
-          name: 'param/keyword'
+          name: 'route/ruleengine/keyword/list'
         }
       }
     ]
@@ -141,7 +141,7 @@ export const asyncRouterMap = [
             meta: {
               title: '规则集列表',
               icon: 'form',
-              name: 'configure/ruleSetConfigure/ruleSet'
+              name: 'route/ruleengine/ruleSet/list'
             }
           },
           {
@@ -151,7 +151,7 @@ export const asyncRouterMap = [
             meta: {
               title: '预处理列表',
               icon: 'form',
-              name: 'configure/ruleSetConfigure/rulePre'
+              name: 'route/ruleengine/rulePre/list'
             }
           },
           {
@@ -161,7 +161,7 @@ export const asyncRouterMap = [
             meta: {
               title: '规则逻辑列表',
               icon: 'form',
-              name: 'configure/ruleSetConfigure/ruleItemLogic'
+              name: 'route/ruleengine/ruleItemLogic/list'
             }
           }
         ]
@@ -183,7 +183,7 @@ export const asyncRouterMap = [
             meta: {
               title: '渠道列表',
               icon: 'form',
-              name: 'configure/dataConfigure/channel'
+              name: 'route/ruleengine/channel/list'
             }
           },
           {
@@ -193,7 +193,7 @@ export const asyncRouterMap = [
             meta: {
               title: '城市列表',
               icon: 'form',
-              name: 'configure/dataConfigure/cityInfo'
+              name: 'route/ruleengine/cityInfo/list'
             }
           },
           {
@@ -203,7 +203,7 @@ export const asyncRouterMap = [
             meta: {
               title: '白名单列表',
               icon: 'form',
-              name: 'configure/dataConfigure/whiteList'
+              name: 'route/ruleengine/whiteList/list'
             }
           },
           {
@@ -213,7 +213,7 @@ export const asyncRouterMap = [
             meta: {
               title: '城市等级列表',
               icon: 'form',
-              name: 'configure/dataConfigure/cityClassificationMapping'
+              name: 'route/ruleengine/cityClassificationMapping/list'
             }
           }
         ]
@@ -238,7 +238,7 @@ export const asyncRouterMap = [
         meta: {
           title: '原始数据列表',
           icon: 'form',
-          name: 'result/rawData'
+          name: 'route/ruleengine/rawData/list'
         }
       },
       {
@@ -248,7 +248,7 @@ export const asyncRouterMap = [
         meta: {
           title: '规则结果集列表',
           icon: 'form',
-          name: 'result/ruleResult'
+          name: 'route/ruleengine/ruleResult/list'
         }
       },
       {
@@ -258,7 +258,7 @@ export const asyncRouterMap = [
         meta: {
           title: '拒绝名单列表',
           icon: 'form',
-          name: 'result/rejectList'
+          name: 'route/ruleengine/rejectList/list'
         }
       }
     ]
@@ -281,7 +281,7 @@ export const asyncRouterMap = [
         meta: {
           title: '用户列表',
           icon: 'form',
-          name: 'system/user'
+          name: 'route/ruleengine/user/list'
         }
       },
       {
@@ -291,7 +291,7 @@ export const asyncRouterMap = [
         meta: {
           title: '功能管理',
           icon: 'form',
-          name: 'system/function'
+          name: 'route/ruleengine/function/list'
         },
         children: [
           {
@@ -301,7 +301,7 @@ export const asyncRouterMap = [
             meta: {
               title: '功能列表',
               icon: 'form',
-              name: 'system/function',
+              name: 'route/ruleengine/function/list',
               hidden: true
             }
           }
@@ -314,7 +314,7 @@ export const asyncRouterMap = [
         meta: {
           title: '角色管理',
           icon: 'form',
-          name: 'system/role'
+          name: 'route/ruleengine/role/list'
         }
       },
       {
@@ -324,7 +324,7 @@ export const asyncRouterMap = [
         meta: {
           title: '操作日志',
           icon: 'form',
-          name: 'system/log'
+          name: 'route/ruleengine/operateLog/list'
         }
       },
       {
@@ -334,7 +334,17 @@ export const asyncRouterMap = [
         meta: {
           title: '组织管理',
           icon: 'form',
-          name: 'system/organization'
+          name: 'route/ruleengine/organization/list'
+        }
+      },
+      {
+        path: 'application',
+        component: _import('system/application/index'),
+        name: 'application',
+        meta: {
+          title: '业务管理',
+          icon: 'form',
+          name: 'route/ruleengine/application/list'
         }
       }
     ]

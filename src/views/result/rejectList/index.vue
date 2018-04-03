@@ -23,6 +23,15 @@
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." border stripe fit highlight-current-row style="width: 100%">
+      <el-table-column type="expand">
+        <template slot-scope="scope">
+          <el-form label-position="left" inline class="xn-table-expand">
+            <el-form-item label="原因">
+              <span>{{ scope.row.fReason }}</span>
+            </el-form-item>
+          </el-form>
+        </template>
+      </el-table-column>
       <el-table-column width="100px" align="center" label="业务ID">
         <template slot-scope="scope">
           <span>{{scope.row.fAppId}}</span>
@@ -53,14 +62,9 @@
           <span>{{scope.row.fRuleId}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="70px" align="center" label="规则项ID">
+      <el-table-column width="100px" align="center" label="规则项ID">
         <template slot-scope="scope">
           <span>{{scope.row.fRuleItemId}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column width="80px" align="center" label="原因">
-        <template slot-scope="scope">
-          <span>{{scope.row.fReason}}</span>
         </template>
       </el-table-column>
       <el-table-column width="180px" align="center" label="分类">

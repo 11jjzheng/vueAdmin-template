@@ -5,6 +5,13 @@ function pluralize(time, label) {
   return time + label + 's'
 }
 
+export function orgNameFilter(orgName) {
+  if (orgName === null || orgName === '') {
+    return '全局'
+  }
+  return orgName
+}
+
 export function timeAgo(time) {
   const between = Date.now() / 1000 - Number(time)
   if (between < 3600) {

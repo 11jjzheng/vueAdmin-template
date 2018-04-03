@@ -1,17 +1,18 @@
 import request from '@/utils/request'
 
-export function fetchPermission(data) {
+export function fetchPermission() {
   return request({
-    url: '/permission/list',
+    url: '/common/tree',
     method: 'get',
-    params: data
+    params: {
+      parentId: 0
+    }
   })
 }
 
-export function fetchDataPermission(data) {
+export function fetchDataPermission() {
   return request({
-    url: '/permission/data',
-    method: 'get',
-    params: data
+    url: '/common/ruleSet',
+    method: 'get'
   })
 }

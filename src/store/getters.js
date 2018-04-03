@@ -3,13 +3,12 @@ const getters = {
   language: state => state.app.language,
   visitedViews: state => state.tagsView.visitedViews,
   cachedViews: state => state.tagsView.cachedViews,
+  user: state => state.user.user,
   token: state => state.user.token,
-  avatar: state => state.user.avatar,
   name: state => state.user.name,
-  introduction: state => state.user.introduction,
-  status: state => state.user.status,
-  roles: state => state.user.roles,
-  setting: state => state.user.setting,
+  appList: state => state.user.appList,
+  globalUser: state => state.user.globalUser,
+  orgId: state => state.user.orgId,
   permission_routers: state => state.permission.routers,
   function_permission: state => (name, func) => {
     return state.permission.functionPermission.find(f => f.name === name).functions.indexOf(func) > -1

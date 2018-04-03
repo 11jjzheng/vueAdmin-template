@@ -27,7 +27,7 @@
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." border stripe fit highlight-current-row style="width: 100%">
       <el-table-column type="expand">
         <template slot-scope="scope">
-          <el-form label-position="left" inline class="xn-table-expand">
+          <el-form label-position="left" inline class="xn-table-code-expand">
             <el-form-item label="请求内容">
               <json-editor :value="scope.row.fReqContent" :readOnly="true"></json-editor>
             </el-form-item>

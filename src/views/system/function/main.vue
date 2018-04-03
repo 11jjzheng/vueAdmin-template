@@ -16,17 +16,17 @@
           <span>{{scope.row.id}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" label="编号">
+      <el-table-column width="200px" label="编号">
         <template slot-scope="scope">
           <span>{{scope.row.code}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" label="名称">
+      <el-table-column width="150px" label="名称">
         <template slot-scope="scope">
           <span>{{scope.row.name}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="250px" align="center" label="URL">
+      <el-table-column min-width="250px" label="URL">
         <template slot-scope="scope">
           <span>{{scope.row.url}}</span>
         </template>
@@ -36,7 +36,7 @@
           <span>{{scope.row.type | typeFilter}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="50px" align="center" label="图标">
+      <el-table-column min-width="80px" label="图标">
         <template slot-scope="scope">
           <span>{{scope.row.icon}}</span>
         </template>
@@ -76,7 +76,7 @@
             <el-option label="一级导航" :value="1"></el-option>
             <el-option label="二级导航" :value="2"></el-option>
             <el-option label="三级导航" :value="3"></el-option>
-            <el-option label="页面功能" :value="4"></el-option>
+            <el-option label="页面功能" :value="-1"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="图标" prop="icon">
@@ -84,8 +84,8 @@
         </el-form-item>
         <el-form-item label="仅全局可见" prop="global">
           <el-select class="filter-item" v-model="temp.global">
-            <el-option label="否" :value="0"></el-option>
-            <el-option label="是" :value="1"></el-option>
+            <el-option label="否" :value="false"></el-option>
+            <el-option label="是" :value="true"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -103,10 +103,10 @@ import waves from '@/directive/waves' // 水波纹指令
 import tableUtil from '@/utils/tableUtil'
 
 const typeMap = {
-  1: '一级导航',
-  2: '二级导航',
-  3: '三级导航',
-  4: '页面功能'
+  '1': '一级导航',
+  '2': '二级导航',
+  '3': '三级导航',
+  '-1': '页面功能'
 }
 
 export default {
@@ -130,7 +130,7 @@ export default {
         url: undefined,
         type: undefined,
         icon: undefined,
-        global: 0,
+        global: false,
         parentId: this.$route.params.parentId
       },
       rules: {
@@ -138,6 +138,16 @@ export default {
         name: [{ required: true, message: '名称必填', trigger: 'blur' }],
         url: [{ required: true, message: 'URL必填', trigger: 'blur' }],
         type: [{ required: true, message: '类型必选', trigger: 'change' }]
+      }
+    }
+  },
+  watch: {
+    $route: function(curVal, oldVal) {
+      let curParentId = curVal.params.parentId
+      let oldParentId = oldVal.params.parentId
+      if (curParentId != oldParentId) {
+        this.listQuery.parentId = curParentId
+        this.getList()
       }
     }
   },
@@ -161,7 +171,7 @@ export default {
         url: undefined,
         type: undefined,
         icon: undefined,
-        global: 0,
+        global: false,
         parentId: this.$route.params.parentId
       }
     }

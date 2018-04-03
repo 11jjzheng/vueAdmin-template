@@ -15,28 +15,37 @@
         <template slot-scope="scope">
           <el-form label-position="left" inline class="xn-table-expand">
             <el-form-item label="创建时间">
-              <span>{{ scope.row.createTime }}</span>
+              <span>{{ scope.row.createTime | parseTime}}</span>
             </el-form-item>
             <el-form-item label="创建人">
               <span>{{ scope.row.createUser }}</span>
             </el-form-item>
-            <el-form-item label="更新时间">
-              <span>{{ scope.row.updateTime }}</span>
-            </el-form-item>
-            <el-form-item label="更新人">
-              <span>{{ scope.row.updateUser }}</span>
-            </el-form-item>
           </el-form>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="编号">
+      <el-table-column width="200px" label="组织">
+        <template slot-scope="scope">
+          <span>{{scope.row.orgName | orgNameFilter}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="200px" label="编号">
         <template slot-scope="scope">
           <span>{{scope.row.code}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="名称">
+      <el-table-column label="名称">
         <template slot-scope="scope">
           <span>{{scope.row.name}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="180px" label="更新时间">
+        <template slot-scope="scope">
+          <span>{{scope.row.updateTime | parseTime}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="180px" label="更新人">
+        <template slot-scope="scope">
+          <span>{{scope.row.updateUser}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="300px" class-name="small-padding fixed-width" fixed="right">
@@ -56,6 +65,14 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%" :close-on-click-modal="false">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
+        <el-form-item v-if="globalUser" label="组织" prop="orgId">
+          <el-select class="filter-item" v-model="temp.orgId" placeholder="请选择">
+            <el-option :key="-1" label="全局" :value="-1">
+            </el-option>
+            <el-option v-for="item in orgOptions" :key="item.id" :label="item.name" :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="编号" prop="code">
           <el-input v-model="temp.code"></el-input>
           </el-date-picker>
@@ -72,17 +89,29 @@
     </el-dialog>
 
     <el-dialog title="操作权限" :visible.sync="functionPermissionDialogFormVisible" width="30%" :close-on-click-modal="false">
-      <z-tree ref="function-permission-tree" treeId="function-permission-tree" :data="functionPermissionData"></z-tree>
+      <z-tree 
+        ref="functionPermissionTree" 
+        treeId="function-permission-tree" 
+        url="role/permission/list" 
+        :params="functionPermissionTreeParams" 
+        :checkEnable="true"
+        :chkboxType="chkboxType"></z-tree>
       <div slot="footer" class="dialog-footer">
         <el-button @click="functionPermissionDialogFormVisible = false">{{$t('table.cancel')}}</el-button>
         <el-button type="primary" @click="handleFunctionPermissionAdding">{{$t('table.confirm')}}</el-button>
       </div>
     </el-dialog>
 
-    <el-dialog title="数据权限" :visible.sync="datapermissionDialogFormVisible" width="30%" :close-on-click-modal="false">
-      <z-tree ref="data-permission-tree" treeId="data-permission-tree" :data="dataPermissionData"></z-tree>
+    <el-dialog title="数据权限" :visible.sync="dataPermissionDialogFormVisible" width="30%" :close-on-click-modal="false">
+      <z-tree 
+        ref="dataPermissionTree" 
+        treeId="data-permission-tree" 
+        url="role/data/permission/list" 
+        :params="dataPermissionTreeParams"
+        :checkEnable="true"
+        :chkboxType="chkboxType"></z-tree>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="datapermissionDialogFormVisible = false">{{$t('table.cancel')}}</el-button>
+        <el-button @click="dataPermissionDialogFormVisible = false">{{$t('table.cancel')}}</el-button>
         <el-button type="primary" @click="handleDataPermissionAdding">{{$t('table.confirm')}}</el-button>
       </div>
     </el-dialog>
@@ -90,9 +119,12 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import waves from '@/directive/waves' // 水波纹指令
 import tableUtil from '@/utils/tableUtil'
 import zTree from '@/components/ZTree/index.vue'
+import {fetchAllOrganization} from '@/api/organization'
+import {updateFunctionPermission, updateDataPermission} from '@/api/role'
 
 export default {
   name: 'role',
@@ -113,84 +145,92 @@ export default {
       temp: {
         id: undefined,
         code: undefined,
-        name: undefined
+        name: undefined,
+        orgId: undefined
       },
       rules: {
         code: [{ required: true, message: '编号必填', trigger: 'blur' }],
         name: [{ required: true, message: '名称必填', trigger: 'blur' }]
       },
+      functionPermissionTreeParams: {
+        roleId: undefined
+      },
       functionPermissionDialogFormVisible: false,
-      functionPermissionData: [
-        { id:1, name:"父节点1 - 展开", open:true,
-          children: [
-          { id:2, name:"父节点11 - 折叠",
-            children: [
-              { id:3, name:"叶子节点111"},
-              { id:4, name:"叶子节点112"},
-              { id:5, name:"叶子节点113"},
-              { id:6, name:"叶子节点114"}
-            ]},
-          { id:7, name:"父节点12 - 折叠",
-            children: [
-              { id:8, name:"叶子节点121"},
-              { id:9, name:"叶子节点122"},
-              { id:10, name:"叶子节点123"},
-              { id:11, name:"叶子节点124"}
-            ]},
-          { id:12, name:"父节点13 - 没有子节点", isParent:true}
-        ]}
-      ],
-      datapermissionDialogFormVisible: false,
-      dataPermissionData: [
-        { id:13, name:"父节点2 - 折叠",
-          children: [
-            { id:14, name:"父节点21 - 展开", open:true,
-              children: [
-                { id:15, name:"叶子节点211"},
-                { id:16, name:"叶子节点212"},
-                { id:17, name:"叶子节点213"},
-                { id:18, name:"叶子节点214"}
-              ]},
-            { id:20, name:"父节点22 - 折叠",
-              children: [
-                { id:21, name:"叶子节点221"},
-                { id:22, name:"叶子节点222"},
-                { id:23, name:"叶子节点223"},
-                { id:24, name:"叶子节点224"}
-              ]},
-            { id:25, name:"父节点23 - 折叠",
-              children: [
-                { id:26, name:"叶子节点231"},
-                { id:27, name:"叶子节点232"},
-                { id:28, name:"叶子节点233"},
-                { id:29, name:"叶子节点234"}
-              ]}
-          ]},
-        { id:30, name:"父节点3 - 没有子节点", isParent:true}
-        ]
+      orgOptions: [],
+      dataPermissionDialogFormVisible: false,
+      dataPermissionTreeParams: {
+        roleId: undefined
+      },
+      chkboxType: {
+        "Y" : "ps", 
+        "N" : "s"
+      }
     }
+  },
+  created() {
+    fetchAllOrganization().then(response => {
+      this.orgOptions = response.data
+    })
+  },
+  computed: {
+    ...mapGetters([
+      'globalUser',
+      'orgId'
+    ])
   },
   methods: {
     resetTemp() {
       this.temp = {
-        jobNumber: undefined,
+        id: undefined,
+        code: undefined,
         name: undefined,
-        orgId: undefined
+        orgId: this.orgId
       }
     },
     handleFunctionPermissionAdd(row) {
-      let temp = Object.assign({}, row)
       this.functionPermissionDialogFormVisible = true
+      let temp = Object.assign({}, row)
+      this.functionPermissionTreeParams = {
+        roleId: temp.id
+      }
     },
     handleFunctionPermissionAdding() {
       this.functionPermissionDialogFormVisible = false
+      let data = {
+        roleId: this.functionPermissionTreeParams.roleId,
+        tree: JSON.stringify(this.$refs.functionPermissionTree.getNodes())
+      }
+      updateFunctionPermission(data).then(() => {
+        this.$notify({
+          title: '成功',
+          message: '修改成功',
+          type: 'success',
+          duration: 2000
+        })
+      })
     },
     handleDataPermissionAdd(row) {
+      this.dataPermissionDialogFormVisible = true
       let temp = Object.assign({}, row)
-      this.datapermissionDialogFormVisible = true
+      this.dataPermissionTreeParams = {
+        roleId: temp.id
+      }
     },
     handleDataPermissionAdding() {
-      this.datapermissionDialogFormVisible = false
+      this.dataPermissionDialogFormVisible = false
+      let data = {
+        roleId: this.dataPermissionTreeParams.roleId,
+        tree: JSON.stringify(this.$refs.dataPermissionTree.getNodes())
+      }
+      console.log(data)
+      updateDataPermission(data).then(() => {
+        this.$notify({
+          title: '成功',
+          message: '修改成功',
+          type: 'success',
+          duration: 2000
+        })
+      })
     }
   }
 }

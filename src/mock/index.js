@@ -24,17 +24,17 @@ Mock.setup({
 })
 
 // 登录相关
-Mock.mock(/\/login\/login/, 'post', loginAPI.loginByUsername)
+Mock.mock(/\/common\/login/, 'post', loginAPI.loginByUsername)
 Mock.mock(/\/login\/logout/, 'post', loginAPI.logout)
-Mock.mock(/\/user\/info\.*/, 'get', loginAPI.getUserInfo)
+Mock.mock(/\/common\/user\.*/, 'get', loginAPI.getUserInfo)
 
 Mock.mock(/\/keyword\/list/, 'get', keyword.getList)
 Mock.mock(/\/keyword\/create/, 'post', keyword.create)
 Mock.mock(/\/keyword\/update/, 'post', keyword.update)
 Mock.mock(/\/keyword\/delete/, 'post', keyword.delete)
 
-Mock.mock(/\/permission\/list/, 'get', permission.getList)
-Mock.mock(/\/permission\/data/, 'get', permission.getDataPermission)
+Mock.mock(/\/common\/tree/, 'get', permission.getList)
+Mock.mock(/\/common\/ruleSet/, 'get', permission.getDataPermission)
 
 Mock.mock(/\/function\/tree/, 'get', functionf.getList)
 Mock.mock(/\/function\/list/, 'get', functionf.getChildList)

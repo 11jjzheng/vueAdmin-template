@@ -40,23 +40,10 @@ export default {
       }
     },
     url: String,
-    data: Array
+    params: Object
   },
   mounted() {
-    this.loading = true
-    if (this.url != undefined) {
-      fetchTree(this.url).then(response => {
-        this.loading = false
-        this.zNodes = response.data
-        this.ztreeObj = $.fn.zTree.init($("#" + this.treeId), this.setting, this.zNodes)
-        this.$emit("onTreeInited")
-      })
-    } else {
-      this.loading = false
-      this.zNodes = this.data
-      this.ztreeObj = $.fn.zTree.init($("#" + this.treeId), this.setting, this.zNodes)
-      this.$emit("onTreeInited")
-    }
+    this.refreshTree()
   },
   data: function() {
     return {
@@ -65,27 +52,41 @@ export default {
         treeId: this.treeId,
         callback: {
           onClick: this.onTreeClick
+        },
+        check: {
+          enable: this.checkEnable,
+          chkboxType: this.chkboxType,
+          chkStyle: this.chkStyle
         }
-      },
-      check: {
-        enable: this.checkEnable,
-        chkboxType: this.chkboxType,
-        chkStyle: this.chkStyle
       },
       zNodes: [],
       loading: false
     }
   },
-  methods: {
-    refreshTree:function() {
-      this.loading = true
-      fetchTree(this.url).then(response => {
-        this.loading = false
-        this.zNodes = response.data
-        this.ztreeObj.refresh()
-      })
+  watch: {
+    url() {
+      this.refreshTree()
     },
-    onTreeClick:function(event, treeId, treeNode) {
+    params() {
+      this.refreshTree()
+    }
+  },
+  methods: {
+    refreshTree() {
+      this.loading = true
+      if (this.url !== undefined && this.url !== '') {
+        if (this.ztreeObj != null) {
+          this.ztreeObj.destroy()
+        }
+        fetchTree(this.url, this.params).then(response => {
+          this.loading = false
+          this.zNodes = response.data
+          this.ztreeObj = $.fn.zTree.init($("#" + this.treeId), this.setting, this.zNodes)
+          this.$emit("onTreeInited")
+        })
+      } 
+    },
+    onTreeClick(event, treeId, treeNode) {
       this.$emit("onTreeClick", {'event': event, 'treeId': treeId, 'treeNode': treeNode})
     },
     getFirstNode() {

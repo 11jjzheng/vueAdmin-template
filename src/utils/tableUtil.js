@@ -12,7 +12,7 @@ export default {
   },
   data() {
     return {
-      tableKey: 0,
+      tableKey: '0',
       list: null,
       total: null,
       listLoading: true,
@@ -37,7 +37,7 @@ export default {
     getList() {
       this.listLoading = true
       fetchList(this.entityName, this.listQuery).then(response => {
-        this.list = response.data.items
+        this.list = response.data.data
         this.total = response.data.total
         this.listLoading = false
       })

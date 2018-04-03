@@ -4,42 +4,31 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 const user = {
   state: {
     user: '',
-    status: '',
-    code: '',
     token: getToken(),
     name: '',
-    avatar: '',
-    introduction: '',
-    roles: [],
-    setting: {
-      articlePlatform: []
-    }
+    appList: [],
+    globalUser: false,
+    orgId: ''
   },
 
   mutations: {
-    SET_CODE: (state, code) => {
-      state.code = code
+    SET_USER: (state, user) => {
+      state.user = user
     },
     SET_TOKEN: (state, token) => {
       state.token = token
     },
-    SET_INTRODUCTION: (state, introduction) => {
-      state.introduction = introduction
-    },
-    SET_SETTING: (state, setting) => {
-      state.setting = setting
-    },
-    SET_STATUS: (state, status) => {
-      state.status = status
-    },
     SET_NAME: (state, name) => {
       state.name = name
     },
-    SET_AVATAR: (state, avatar) => {
-      state.avatar = avatar
+    SET_APP_LIST: (state, appList) => {
+      state.appList = appList
     },
-    SET_ROLES: (state, roles) => {
-      state.roles = roles
+    SET_GLOBAL_USER: (state, globalUser) => {
+      state.globalUser = globalUser
+    },
+    SET_ORG_ID: (state, orgId) => {
+      state.orgId = orgId
     }
   },
 
@@ -51,6 +40,7 @@ const user = {
         loginByUsername(username, userInfo.password).then(response => {
           // 登录成功，保存token
           const data = response.data
+          console.log(data.token)
           commit('SET_TOKEN', data.token)
           setToken(response.data.token)
           resolve()
@@ -64,34 +54,22 @@ const user = {
     GetUserInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getUserInfo(state.token).then(response => {
-          if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
+          console.log(response.data)
+          if (response.data.name == undefined) {
             reject('error')
           }
           const data = response.data
-          commit('SET_ROLES', data.roles)
+          commit('SET_USER', data)
           commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
-          commit('SET_INTRODUCTION', data.introduction)
+          commit('SET_APP_LIST', data.appList)
+          commit('SET_GLOBAL_USER', data.globalUser)
+          commit('SET_ORG_ID', data.orgId)
           resolve(response)
         }).catch(error => {
           reject(error)
         })
       })
     },
-
-    // 第三方验证登录
-    // LoginByThirdparty({ commit, state }, code) {
-    //   return new Promise((resolve, reject) => {
-    //     commit('SET_CODE', code)
-    //     loginByThirdparty(state.status, state.email, state.code).then(response => {
-    //       commit('SET_TOKEN', response.data.token)
-    //       setToken(response.data.token)
-    //       resolve()
-    //     }).catch(error => {
-    //       reject(error)
-    //     })
-    //   })
-    // },
 
     // 登出
     LogOut({ commit, state }) {
@@ -113,22 +91,6 @@ const user = {
         commit('SET_TOKEN', '')
         removeToken()
         resolve()
-      })
-    },
-
-    // 动态修改权限
-    ChangeRoles({ commit }, role) {
-      return new Promise(resolve => {
-        commit('SET_TOKEN', role)
-        setToken(role)
-        getUserInfo(role).then(response => {
-          const data = response.data
-          commit('SET_ROLES', data.roles)
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
-          commit('SET_INTRODUCTION', data.introduction)
-          resolve()
-        })
       })
     }
   }

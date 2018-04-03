@@ -15,33 +15,37 @@
         <template slot-scope="scope">
           <el-form label-position="left" inline class="xn-table-expand">
             <el-form-item label="创建时间">
-              <span>{{ scope.row.createTime }}</span>
+              <span>{{ scope.row.createTime | parseTime}}</span>
             </el-form-item>
             <el-form-item label="创建人">
               <span>{{ scope.row.createUser }}</span>
             </el-form-item>
-            <el-form-item label="更新时间">
-              <span>{{ scope.row.updateTime }}</span>
-            </el-form-item>
-            <el-form-item label="更新人">
-              <span>{{ scope.row.updateUser }}</span>
-            </el-form-item>
           </el-form>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="组织">
+      <el-table-column width="200px" label="组织">
         <template slot-scope="scope">
-          <span>{{scope.row.orgName}}</span>
+          <span>{{scope.row.orgName | orgNameFilter}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="工号">
+      <el-table-column width="200px" label="工号">
         <template slot-scope="scope">
           <span>{{scope.row.jobNumber}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="名称">
+      <el-table-column label="名称">
         <template slot-scope="scope">
           <span>{{scope.row.name}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="180px" label="更新时间">
+        <template slot-scope="scope">
+          <span>{{scope.row.updateTime | parseTime}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="180px" label="更新人">
+        <template slot-scope="scope">
+          <span>{{scope.row.updateUser}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="260px" class-name="small-padding fixed-width" fixed="right">
@@ -63,9 +67,11 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%" :close-on-click-modal="false">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
-        <el-form-item label="组织" prop="orgId">
+        <el-form-item v-if="globalUser" label="组织" prop="orgId">
           <el-select class="filter-item" v-model="temp.orgId" placeholder="请选择">
-            <el-option v-for="item in orgOptions" :key="item" :label="item.name" :value="item.id">
+            <el-option :key="-1" label="全局" :value="-1">
+            </el-option>
+            <el-option v-for="item in orgOptions" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -128,15 +134,18 @@
     </el-dialog>
 
     <el-dialog title="权限" :visible.sync="permissionDialogFormVisible" width="30%">
-      <z-tree treeId="permission-tree" url="/function/tree"></z-tree>
+      <z-tree ref="permissionTree" tree-id="permissionTree" url="/user/permission/list" :params="temp"></z-tree>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import waves from '@/directive/waves' // 水波纹指令
 import tableUtil from '@/utils/tableUtil'
 import zTree from '@/components/ZTree/index.vue'
+import {fetchAllOrganization} from '@/api/organization'
+import {fetchRole, fetchChooseRole, insertRole, deleteRole, fetchPermission} from '@/api/user'
 
 export default {
   name: 'user',
@@ -160,45 +169,76 @@ export default {
         orgId: undefined
       },
       rules: {
-        jobNumber: [{ required: true, message: '工号必填', trigger: 'change' }],
+        jobNumber: [{ required: true, message: '工号必填，并形如\'xn000000\'', trigger: 'change', pattern: '^xn\\d{6}' }],
         name: [{ required: true, message: '名称必填', trigger: 'blur' }],
         orgId: [{ required: true, message: '组织必选', trigger: 'change' }]
       },
+      orgOptions: [],
       dialogRoleVisible: false,
-      roleTableKey: 1,
+      roleTableKey: '1',
       roleListLoading: false,
-      roleList: [{code: 'admin', name: '管理员'}],
+      roleList: [],
       dialogChooseRoleVisible: false,
-      chooseRoleTableKey: 2,
+      chooseRoleTableKey: '2',
       chooseRoleListLoading: false,
-      chooseRoleList: [{code: 'visitor', name: '访问者'}],
-      permissionDialogFormVisible: false
+      chooseRoleList: [],
+      permissionDialogFormVisible: false,
+      tempRole: {
+        id: undefined,
+        code: undefined,
+        name: undefined
+      },
+      permissionList: {}
     }
+  },
+  computed: {
+    ...mapGetters([
+      'globalUser',
+      'orgId'
+    ])
+  },
+  created() {
+    fetchAllOrganization().then(response => {
+      this.orgOptions = response.data
+    })
   },
   methods: {
     resetTemp() {
       this.temp = {
         jobNumber: undefined,
         name: undefined,
-        orgId: undefined
+        orgId: this.orgId
       }
     },
     handleRole(row) {
-      let temp = Object.assign({}, row)
+      this.temp = Object.assign({}, row)
+      this.getRoleList()
+    },
+    getRoleList() {
       this.dialogRoleVisible = true
+      this.roleListLoading = true
+      fetchRole(this.temp.jobNumber).then(response => {
+        this.roleListLoading = false
+        this.roleList = response.data.data
+      })
     },
     handleRoleAdd() {
       this.dialogChooseRoleVisible = true
+      this.chooseRoleListLoading = true
+      fetchChooseRole(this.temp.jobNumber).then(response => {
+        this.chooseRoleListLoading = false
+        this.chooseRoleList = response.data.data
+      })
     },
     handleRoleDelete(row) {
-      let temp = Object.assign({}, row)
+      this.tempRole = Object.assign({}, row)
       this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteData(this.entityName, temp).then(() => {
-          this.getList()
+        deleteRole(this.temp.jobNumber, this.tempRole.id).then(() => {
+          this.getRoleList()
           this.$notify({
             title: '成功',
             message: '删除成功',
@@ -211,11 +251,20 @@ export default {
       });
     },
     handleRoleAdding(row) {
-      let temp = Object.assign({}, row)
-      this.dialogChooseRoleVisible = false
+      this.tempRole = Object.assign({}, row)
+      insertRole(this.temp.jobNumber, this.tempRole.id).then(() => {
+        this.getRoleList()
+        this.dialogChooseRoleVisible = false
+        this.$notify({
+          title: '成功',
+          message: '创建成功',
+          type: 'success',
+          duration: 2000
+        })
+      })
     },
     handlePermission(row) {
-      let temp = Object.assign({}, row)
+      this.temp = Object.assign({}, row)
       this.permissionDialogFormVisible = true
     }
   }

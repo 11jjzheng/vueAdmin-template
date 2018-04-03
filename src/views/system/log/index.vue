@@ -14,7 +14,8 @@
         <template slot-scope="scope">
           <el-form label-position="left" inline class="xn-table-expand">
             <el-form-item label="请求数据">
-              <json-editor :value="scope.row.fData" :readOnly="true"></json-editor>
+              <!-- <json-editor :value="scope.row.fData" :readOnly="true"></json-editor> -->
+              <span>{{scope.row.fData}}</span>
             </el-form-item>
           </el-form>
         </template>
@@ -29,7 +30,7 @@
           <span>{{scope.row.fRemoteAddress}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="200px" align="center" label="请求地址">
+      <el-table-column min-width="200px" label="请求地址">
         <template slot-scope="scope">
           <span>{{scope.row.fUrl}}</span>
         </template>
@@ -39,29 +40,29 @@
           <span>{{scope.row.fMethod}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="100px" align="center" label="模块">
+      <el-table-column width="100px" label="模块">
         <template slot-scope="scope">
           <span>{{scope.row.fModule}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="100px" align="center" label="子模块">
+      <el-table-column width="100px" label="子模块">
         <template slot-scope="scope">
           <span>{{scope.row.fSubModule}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="操作">
+      <el-table-column width="200px" label="操作">
         <template slot-scope="scope">
           <span>{{scope.row.fOperate}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="100px" align="center" label="操作人">
+      <el-table-column width="100px" label="操作人">
         <template slot-scope="scope">
           <span>{{scope.row.fOperator}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="180px" align="center" label="操作时间">
+      <el-table-column width="180px" label="操作时间">
         <template slot-scope="scope">
-          <span>{{scope.row.fCreateTime}}</span>
+          <span>{{scope.row.fCreateTime | parseTime}}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -89,7 +90,7 @@ export default {
   mixins: [tableUtil],
   data() {
     return {
-      entityName: 'log',
+      entityName: 'operateLog',
       listQuery: {
         module: undefined,
         operator: undefined

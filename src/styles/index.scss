@@ -216,6 +216,19 @@ code {
     margin-bottom: 0;
     width: 50%;
   }
+}
+
+.xn-table-code-expand {
+  font-size: 0;
+  label {
+    width: 90px;
+    color: #99a9bf;
+  }
+  .el-form-item {
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 50%;
+  }
   .el-form-item__content {
     width: 98%
   }
