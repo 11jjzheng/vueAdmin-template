@@ -11,27 +11,39 @@
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." border stripe fit highlight-current-row style="width: 100%">
+      <el-table-column type="expand">
+        <template slot-scope="scope">
+          <el-form label-position="left" inline class="xn-table-expand">
+            <el-form-item label="创建时间">
+              <span>{{ scope.row.fCreateTime | parseTime}}</span>
+            </el-form-item>
+            <el-form-item label="创建人">
+              <span>{{ scope.row.fCreateUser }}</span>
+            </el-form-item>
+          </el-form>
+        </template>
+      </el-table-column>
       <el-table-column width="65" align="center" :label="$t('table.id')">
         <template slot-scope="scope">
           <span>{{scope.row.fAutoId}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="表达式">
+      <el-table-column min-width="450px" label="表达式">
         <template slot-scope="scope">
           <span>{{scope.row.fRuleExpression}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="400px" align="center" label="说明">
+      <el-table-column width="400px" label="说明">
         <template slot-scope="scope">
           <span>{{scope.row.fRemark}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="常量列表">
+      <el-table-column width="200px" label="常量列表">
         <template slot-scope="scope">
           <span>{{scope.row.fRuleParamList}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="变量列表">
+      <el-table-column width="200px" label="变量列表">
         <template slot-scope="scope">
           <span>{{scope.row.fRuleVariableList}}</span>
         </template>
@@ -39,6 +51,16 @@
       <el-table-column width="100px" align="center" label="黑名单类型">
         <template slot-scope="scope">
           <span>{{scope.row.fBlacklistType | blacklistTypeFilter}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="180px" label="更新时间">
+        <template slot-scope="scope">
+          <span>{{ scope.row.fUpdateTime | parseTime}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="100px" label="更新人">
+        <template slot-scope="scope">
+          <span>{{ scope.row.fUpdateUser }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="120px" class-name="small-padding fixed-width" fixed="right">
@@ -54,20 +76,20 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="160px">
-        <el-form-item label="表达式" prop="fRuleExpression" placeholder="表达式编写请查看语法手册">
-          <el-input type="textarea" v-model="temp.fRuleExpression"></el-input>
+        <el-form-item label="表达式" prop="fRuleExpression">
+          <el-input type="textarea" v-model="temp.fRuleExpression" placeholder="表达式编写请查看语法手册"></el-input>
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="变量列表(';' 号分割)：" prop="fRuleVariableList" placeholder="形如'age;sex', 每个参数名使用';'分割即可">
-          <el-input v-model="temp.fRuleVariableList"></el-input>
+        <el-form-item label="变量列表(';' 号分割)：" prop="fRuleVariableList">
+          <el-input v-model="temp.fRuleVariableList" placeholder="形如'age;sex', 每个参数名使用';'分割即可"></el-input>
         </el-form-item>
-        <el-form-item label="参数列表(';' 号分割)：" prop="fRuleParamList" placeholder="形如'M;N'">
-          <el-input v-model="temp.fRuleParamList"></el-input>
+        <el-form-item label="参数列表(';' 号分割)：" prop="fRuleParamList">
+          <el-input v-model="temp.fRuleParamList" placeholder="形如'M;N'"></el-input>
         </el-form-item>
-        <el-form-item label="命中描述" prop="fRemark" placeholder="当规则命中时, 此描述存入结果中, 可使用规则参数如 '年龄不大于' + M + '岁', M为一个规则参数">
-          <el-input type="textarea" v-model="temp.fRemark"></el-input>
+        <el-form-item label="命中描述" prop="fRemark">
+          <el-input type="textarea" v-model="temp.fRemark" placeholder="当规则命中时, 此描述存入结果中, 可使用规则参数如 '年龄不大于' + M + '岁', M为一个规则参数"></el-input>
         </el-form-item>
         <el-form-item label="黑名单类型：" prop="fRuleParamList">
           <el-select class="filter-item" v-model="temp.fBlacklistType" placeholder="请选择">

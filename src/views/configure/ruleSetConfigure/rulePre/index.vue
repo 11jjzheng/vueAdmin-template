@@ -1,7 +1,7 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="header-container">
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="参数" v-model="listQuery.variable">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="参数" v-model="listQuery.ruleVariable">
       </el-input>
       <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="处理器" v-model="listQuery.preClass">
       </el-input>
@@ -17,33 +17,37 @@
         <template slot-scope="scope">
           <el-form label-position="left" inline class="xn-table-expand">
             <el-form-item label="创建时间">
-              <span>{{ scope.row.fCreateTime }}</span>
+              <span>{{ scope.row.fCreateTime | parseTime }}</span>
             </el-form-item>
             <el-form-item label="创建人">
               <span>{{ scope.row.fCreateUser }}</span>
             </el-form-item>
-            <el-form-item label="更新时间">
-              <span>{{ scope.row.fUpdateTime }}</span>
-            </el-form-item>
-            <el-form-item label="更新人">
-              <span>{{ scope.row.fUpdateUser }}</span>
-            </el-form-item>
           </el-form>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="参数">
+      <el-table-column width="200px" label="参数">
         <template slot-scope="scope">
           <span>{{scope.row.fRuleVariable}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="处理器">
+      <el-table-column width="200px" label="处理器">
         <template slot-scope="scope">
           <span>{{scope.row.fPreClass}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="400px" align="center" label="备注">
+      <el-table-column min-width="400px" label="备注">
         <template slot-scope="scope">
           <span>{{scope.row.fRemark}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="180px" label="更新时间">
+        <template slot-scope="scope">
+          <span>{{ scope.row.fUpdateTime | parseTime}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="150px" label="更新人">
+        <template slot-scope="scope">
+          <span>{{ scope.row.fUpdateUser }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="120px" class-name="small-padding fixed-width" fixed="right">
@@ -59,7 +63,7 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="40%" :close-on-click-modal="false">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
         <el-form-item label="参数" prop="fRuleVariable">
           <el-input v-model="temp.fRuleVariable"></el-input>
@@ -95,7 +99,7 @@ export default {
     return {
       entityName: 'rulePre',
       listQuery: {
-        variable: undefined,
+        ruleVariable: undefined,
         preClass: undefined,
         remark: undefined
       },

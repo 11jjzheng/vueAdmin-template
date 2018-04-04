@@ -2,12 +2,12 @@
   <div class="app-container calendar-list-container">
     <div class="header-container">
       <el-select clearable class="filter-item" v-model="listQuery.appId" placeholder="业务ID">
-        <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
+        <el-option v-for="item in appList" :key="item.id" :label="item.id" :value="item.id">
         </el-option>
       </el-select>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="名称" v-model="listQuery.name">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="名称" v-model="listQuery.channelName">
       </el-input>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="ID" v-model="listQuery.id">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="ID" v-model="listQuery.channelId">
       </el-input>
       <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="系数" v-model="listQuery.coefficient">
       </el-input>
@@ -21,16 +21,10 @@
         <template slot-scope="scope">
           <el-form label-position="left" inline class="xn-table-expand">
             <el-form-item label="创建时间">
-              <span>{{ scope.row.fCreateTime }}</span>
+              <span>{{ scope.row.fCreateTime | parseTime}}</span>
             </el-form-item>
             <el-form-item label="创建人">
               <span>{{ scope.row.fCreateUser }}</span>
-            </el-form-item>
-            <el-form-item label="更新时间">
-              <span>{{ scope.row.fUpdateTime }}</span>
-            </el-form-item>
-            <el-form-item label="更新人">
-              <span>{{ scope.row.fUpdateUser }}</span>
             </el-form-item>
           </el-form>
         </template>
@@ -40,24 +34,34 @@
           <span>{{scope.row.fAutoId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" label="业务ID">
+      <el-table-column width="150px" label="业务ID">
         <template slot-scope="scope">
           <span>{{scope.row.fAppId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="400px" align="center" label="名称">
+      <el-table-column width="200px" label="名称">
         <template slot-scope="scope">
           <span>{{scope.row.fChannelName}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="ID">
+      <el-table-column min-width="250px" label="ID">
         <template slot-scope="scope">
           <span>{{scope.row.fChannelId}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="系数">
+      <el-table-column width="150px" align="center" label="系数">
         <template slot-scope="scope">
           <span>{{scope.row.fCoefficient}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="180px" label="更新时间">
+        <template slot-scope="scope">
+          <span>{{ scope.row.fUpdateTime | parseTime}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="100px" label="更新人">
+        <template slot-scope="scope">
+          <span>{{ scope.row.fUpdateUser }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="120px" class-name="small-padding fixed-width" fixed="right">
@@ -73,11 +77,11 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%" :close-on-click-modal="false">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
         <el-form-item label="业务ID" prop="fAppId">
           <el-select class="filter-item" v-model="temp.fAppId" placeholder="请选择">
-            <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
+            <el-option v-for="item in appList" :key="item.id" :label="item.id" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -116,8 +120,8 @@ export default {
       entityName: 'channel',
       listQuery: {
         appId: undefined,
-        name: undefined,
-        id: undefined,
+        channelName: undefined,
+        channelId: undefined,
         coefficient: undefined
       },
       temp: {

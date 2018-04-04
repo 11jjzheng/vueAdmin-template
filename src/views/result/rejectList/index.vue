@@ -2,21 +2,21 @@
   <div class="app-container calendar-list-container">
     <div class="header-container">
       <el-select clearable class="filter-item" v-model="listQuery.appId" placeholder="业务ID">
-        <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
+        <el-option v-for="item in appList" :key="item.id" :label="item.id" :value="item.id">
         </el-option>
       </el-select>
-      <el-select clearable class="filter-item" v-model="listQuery.ruleSetId" placeholder="规则集">
-        <el-option v-for="item in ruleSetOptions" :key="item" :label="item.name" :value="item.id">
+      <el-select clearable class="filter-item" v-model="listQuery.ruleId" placeholder="规则集">
+        <el-option v-for="item in ruleSetOptions" :key="item.fRuleId" :label="item.fRemark" :value="item.fRuleId">
         </el-option>
       </el-select>
       <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="姓名" v-model="listQuery.name">
       </el-input>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="身份证号" v-model="listQuery.idcard">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="身份证号" v-model="listQuery.idNum">
       </el-input>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="手机号" v-model="listQuery.phone">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="手机号" v-model="listQuery.mobile">
       </el-input>
-      <el-date-picker v-model="listQuery.startDate" type="date" class="filter-item" placeholder="起始时间">
-      </el-date-picker>至<el-date-picker v-model="listQuery.endDate" class="filter-item" type="date" placeholder="结束时间">
+      <el-date-picker v-model="listQuery.createTimeStart" type="date" class="filter-item" placeholder="起始时间">
+      </el-date-picker>至<el-date-picker v-model="listQuery.createTimeEnd" class="filter-item" type="date" placeholder="结束时间">
       </el-date-picker>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-refresh" @click="handleResetFilter">{{$t('table.reset')}}</el-button>
@@ -32,64 +32,64 @@
           </el-form>
         </template>
       </el-table-column>
-      <el-table-column width="100px" align="center" label="业务ID">
+      <el-table-column width="100px" label="业务ID">
         <template slot-scope="scope">
           <span>{{scope.row.fAppId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="80px" align="center" label="姓名">
+      <el-table-column width="80px" label="姓名">
         <template slot-scope="scope">
           <span>{{scope.row.fName}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="身份证号">
+      <el-table-column width="200px" label="身份证号">
         <template slot-scope="scope">
           <span>{{scope.row.fIdNum}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="120px" align="center" label="手机号">
+      <el-table-column width="120px" label="手机号">
         <template slot-scope="scope">
           <span>{{scope.row.fMobile}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="请求ID">
+      <el-table-column width="200px" label="请求ID">
         <template slot-scope="scope">
           <span>{{scope.row.fReqId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" label="规则集">
+      <el-table-column width="150px" label="规则集">
         <template slot-scope="scope">
           <span>{{scope.row.fRuleId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="100px" align="center" label="规则项ID">
+      <el-table-column width="100px" label="规则项ID">
         <template slot-scope="scope">
           <span>{{scope.row.fRuleItemId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="180px" align="center" label="分类">
+      <el-table-column width="180px" label="分类">
         <template slot-scope="scope">
           <span>{{scope.row.fType | typeFilter}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="80px" align="center" label="子分类">
+      <el-table-column width="80px" label="子分类">
         <template slot-scope="scope">
           <span>{{scope.row.fSubType | subTypeFilter}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="180px" align="center" label="过期时间">
+      <el-table-column width="180px" align="right" label="过期时间">
         <template slot-scope="scope">
-          <span>{{scope.row.fExpireDate}}</span>
+          <span>{{scope.row.fExpireDate | parseTime}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="180px" align="center" label="创建时间">
+      <el-table-column width="180px" align="right" label="创建时间">
         <template slot-scope="scope">
-          <span>{{scope.row.fCreateTime}}</span>
+          <span>{{scope.row.fCreateTime | parseTime}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="180px" align="center" label="更新时间">
+      <el-table-column width="180px" align="right" label="更新时间">
         <template slot-scope="scope">
-          <span>{{scope.row.fUpdateTime}}</span>
+          <span>{{scope.row.fUpdateTime | parseTime}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="70px" class-name="small-padding fixed-width" fixed="right">
@@ -108,8 +108,11 @@
 
 <script>
 import waves from '@/directive/waves' // 水波纹指令
-import tableUtil from '@/utils/tableUtil'
+import dynamicTableUtil from '@/utils/dynamicTableUtil'
 import JsonEditor from '@/components/JsonEditor'
+import { fetchAllRuleSet } from '@/api/ruleSet'
+import { fetchList } from '@/api/common'
+import { deleteDynamicTableData } from '@/api/common'
 
 const typeMap = {
   0: '无分类',
@@ -130,21 +133,56 @@ export default {
   components: {
     JsonEditor
   },
-  mixins: [tableUtil],
+  created() {
+    fetchAllRuleSet().then(response => {
+      this.ruleSetOptions = response.data
+    })
+  },
+  mixins: [dynamicTableUtil],
   data() {
     return {
       entityName: 'rejectList',
-      ruleSetOptions: [{id:"testRule",name:"测试规则集"}],
-      appIdOptions: ["credit-ndf"],
+      ruleSetOptions: [],
       listQuery: {
         appId: undefined,
-        ruleSetId: undefined,
+        ruleId: undefined,
         name: undefined,
-        idcard: undefined,
-        phone: undefined,
-        startDate: undefined,
-        endDate: undefined
+        idNum: undefined,
+        mobile: undefined,
+        createTimeStart: undefined,
+        createTimeEnd: undefined
       }
+    }
+  },
+  methods: {
+    getList() {
+      this.listLoading = true
+      fetchList(this.entityName, this.listQuery).then(response => {
+        this.list = response.data.data
+        this.total = response.data.total
+        this.listLoading = false
+      })
+    },
+    handleDelete(row) {
+      let temp = Object.assign({}, row)
+      this.tableName = temp.fIdNum
+      this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteDynamicTableData(this.entityName, this.tableName, temp).then(() => {
+          this.getList()
+          this.$notify({
+            title: '成功',
+            message: '删除成功',
+            type: 'success',
+            duration: 2000
+          })
+        })
+      }).catch(() => {
+
+      });
     }
   },
   filters: {

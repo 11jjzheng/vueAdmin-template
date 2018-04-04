@@ -1,9 +1,9 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="header-container">
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="代码" v-model="listQuery.code">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="代码" v-model="listQuery.cityCode">
       </el-input>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="名称" v-model="listQuery.name">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="名称" v-model="listQuery.cityName">
       </el-input>
       <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="省份" v-model="listQuery.province">
       </el-input>
@@ -20,17 +20,17 @@
           <span>{{scope.row.fCityCode}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="150px" align="center" label="名称">
+      <el-table-column min-width="150px" label="名称">
         <template slot-scope="scope">
           <span>{{scope.row.fCityName}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="简称">
+      <el-table-column width="200px" label="简称">
         <template slot-scope="scope">
           <span>{{scope.row.fCityNameAbbreviate}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="所属省份">
+      <el-table-column width="200px" label="所属省份">
         <template slot-scope="scope">
           <span>{{scope.row.fProvinceName}}</span>
         </template>
@@ -43,6 +43,11 @@
       <el-table-column width="100px" align="center" label="行政级别">
         <template slot-scope="scope">
           <span>{{scope.row.fAdministrationLevel}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="100px" align="center" label="区号">
+        <template slot-scope="scope">
+          <span>{{scope.row.fZoneCode}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="120px" class-name="small-padding fixed-width" fixed="right">
@@ -58,7 +63,7 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%" :close-on-click-modal="false">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
         <el-form-item label="代码" prop="fCityCode">
           <el-input v-model="temp.fCityCode"></el-input>
@@ -81,6 +86,10 @@
         </el-form-item>
         <el-form-item label="行政级别" prop="fAdministrationLevel">
           <el-input v-model="temp.fAdministrationLevel"></el-input>
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="区号" prop="fZoneCode">
+          <el-input v-model="temp.fZoneCode"></el-input>
           </el-date-picker>
         </el-form-item>
       </el-form>
@@ -107,8 +116,8 @@ export default {
     return {
       entityName: 'cityInfo',
       listQuery: {
-        code: undefined,
-        name: undefined,
+        cityCode: undefined,
+        cityName: undefined,
         province: undefined,
         level: undefined
       },
@@ -118,7 +127,8 @@ export default {
         fCityNameAbbreviate: '',
         fProvinceName: '',
         fProvinceCode: '',
-        fAdministrationLevel: ''
+        fAdministrationLevel: '',
+        fZoneCode: ''
       },
       rules: {
         fCityCode: [{ required: true, message: '代码必填', trigger: 'blur' }],

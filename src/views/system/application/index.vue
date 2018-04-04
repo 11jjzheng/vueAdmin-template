@@ -15,6 +15,11 @@
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." border stripe fit highlight-current-row style="width: 100%">
+      <el-table-column width="180px" label="组织">
+        <template slot-scope="scope">
+          <span>{{scope.row.orgName | orgNameFilter}}</span>
+        </template>
+      </el-table-column>
       <el-table-column width="200px" align="center" label="业务ID">
         <template slot-scope="scope">
           <span>{{scope.row.id}}</span>
@@ -57,7 +62,7 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="25%" :close-on-click-modal="false">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="28%" :close-on-click-modal="false">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
       <el-form-item label="组织" prop="orgId">
           <el-select class="filter-item" v-model="temp.orgId" placeholder="请选择">
@@ -65,8 +70,8 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="业务ID" prop="id" :disabled="dialogStatus === 'update'">
-          <el-input v-model="temp.id"></el-input>
+        <el-form-item label="业务ID" prop="id">
+          <el-input v-model="temp.id" :disabled="dialogStatus === 'update'"></el-input>
         </el-form-item>
         <el-form-item label="名称" prop="name">
           <el-input v-model="temp.name"></el-input>

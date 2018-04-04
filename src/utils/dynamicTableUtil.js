@@ -1,5 +1,37 @@
 import { mapGetters } from 'vuex'
-import { fetchList, createData, updateData, deleteData } from '@/api/common'
+import { fetchDynamicTableList, createDynamicTableData, updateDynamicTableData, deleteDynamicTableData } from '@/api/common'
+
+function monthNum() {
+  let date1 = {}
+  let startDate = '2017-8'
+  date1 = startDate.split("-")
+  let startMonth = parseInt(date1[0])*12 + parseInt(date1[1])
+  let d = new Date()
+  let nowMonth = parseInt(d.getFullYear())*12 + parseInt(d.getMonth())+1
+  let monthNum = Math.abs(nowMonth - startMonth)+1
+  return monthNum
+}
+
+var optionsFactory = function() {
+  let num = monthNum()
+  let date = new Date()
+  let result = []
+  for(let i = 0; i < num; i++) {
+    let temp = {}
+    let year = date.getFullYear()
+    let month = date.getMonth() + 1
+    let name = year + "年" + month + '月'
+    month = month < 10 ? "0" + month : month
+    let value =  year+ "_" + month
+    temp['value'] = value
+    temp['name'] = name
+    date.setMonth(date.getMonth() - 1)
+    result.push(temp)
+  }  
+  return result;  
+}
+
+const options = optionsFactory()
 
 export default {
   computed: {
@@ -28,7 +60,9 @@ export default {
       textMap: {
         update: '编辑',
         create: '新增'
-      }
+      },
+      tableName: options[0].value,
+      tableNameOptions: options,
     }
   },
   created() {
@@ -37,7 +71,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchList(this.entityName, this.listQuery).then(response => {
+      fetchDynamicTableList(this.entityName, this.tableName, this.listQuery).then(response => {
         this.list = response.data.data
         this.total = response.data.total
         this.listLoading = false
@@ -80,7 +114,7 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          createData(this.entityName, this.temp).then(() => {
+          createDynamicTableData(this.entityName, this.tableName, this.temp).then(() => {
             this.getList()
             this.dialogFormVisible = false
             this.$notify({
@@ -105,7 +139,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          updateData(this.entityName, tempData).then(() => {
+          updateDynamicTableData(this.entityName, this.tableName, tempData).then(() => {
             this.getList()
             this.dialogFormVisible = false
             this.$notify({
@@ -125,7 +159,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteData(this.entityName, temp).then(() => {
+        deleteDynamicTableData(this.entityName, this.tableName, temp).then(() => {
           this.getList()
           this.$notify({
             title: '成功',

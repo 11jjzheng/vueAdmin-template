@@ -193,7 +193,7 @@ export const asyncRouterMap = [
             meta: {
               title: '城市列表',
               icon: 'form',
-              name: 'route/ruleengine/cityInfo/list'
+              name: 'route/ruleengine/cityinfo/list'
             }
           },
           {

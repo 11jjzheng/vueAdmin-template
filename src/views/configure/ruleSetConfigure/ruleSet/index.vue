@@ -2,10 +2,10 @@
   <div class="app-container calendar-list-container">
     <div class="header-container">
       <el-select clearable class="filter-item" v-model="listQuery.appId" placeholder="业务ID">
-        <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
+        <el-option v-for="item in appList" :key="item.id" :label="item.id" :value="item.id">
         </el-option>
       </el-select>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="名称" v-model="listQuery.name">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="名称" v-model="listQuery.ruleId">
       </el-input>
       <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="处理器" v-model="listQuery.bizClass">
       </el-input>
@@ -13,6 +13,7 @@
       </el-input>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-refresh" @click="handleResetFilter">{{$t('table.reset')}}</el-button>
+      <el-button v-if="function_permission(entityName, 'import')" class="function-btn" type="primary" @click="handleImport()">导入</el-button>
       <el-button v-if="create_permission(entityName)" class="function-btn" @click="handleCreate" type="primary" icon="el-icon-plus">{{$t('table.add')}}</el-button>
     </div>
 
@@ -21,16 +22,10 @@
         <template slot-scope="scope">
           <el-form label-position="left" inline class="xn-table-expand">
             <el-form-item label="创建时间">
-              <span>{{ scope.row.fCreateTime }}</span>
+              <span>{{ scope.row.fCreateTime | parseTime}}</span>
             </el-form-item>
             <el-form-item label="创建人">
               <span>{{ scope.row.fCreateUser }}</span>
-            </el-form-item>
-            <el-form-item label="更新时间">
-              <span>{{ scope.row.fUpdateTime }}</span>
-            </el-form-item>
-            <el-form-item label="更新人">
-              <span>{{ scope.row.fUpdateUser }}</span>
             </el-form-item>
           </el-form>
         </template>
@@ -40,27 +35,37 @@
           <span>{{scope.row.fAutoId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" label="业务ID">
+      <el-table-column width="150px" label="业务ID">
         <template slot-scope="scope">
           <span>{{scope.row.fAppId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="400px" align="center" label="名称">
+      <el-table-column width="200px" label="名称">
         <template slot-scope="scope">
           <span>{{scope.row.fRuleId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="处理器">
+      <el-table-column width="200px" label="处理器">
         <template slot-scope="scope">
           <span>{{scope.row.fBizClass}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="备注">
+      <el-table-column min-width="450px" label="备注">
         <template slot-scope="scope">
           <span>{{scope.row.fRemark}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.actions')" width="250px" class-name="small-padding fixed-width" fixed="right">
+      <el-table-column width="180px" label="更新时间">
+        <template slot-scope="scope">
+          <span>{{ scope.row.fUpdateTime | parseTime}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="100px" label="更新人">
+        <template slot-scope="scope">
+          <span>{{ scope.row.fUpdateUser }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" :label="$t('table.actions')" width="240px" class-name="small-padding fixed-width" fixed="right">
         <template slot-scope="scope">
           <el-button v-if="function_permission(entityName, 'import')" type="primary" @click="handleImport(scope.row)">导入</el-button>
           <el-button v-if="function_permission(entityName, 'export')" type="primary" @click="handleExport(scope.row)">导出</el-button>
@@ -75,17 +80,11 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" :close-on-click-modal="false">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
         <el-form-item label="业务ID" prop="fAppId">
           <el-select class="filter-item" v-model="temp.fAppId" placeholder="请选择">
-            <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="所属组织" prop="OrgId">
-          <el-select class="filter-item" v-model="temp.OrgId" placeholder="请选择">
-            <el-option v-for="item in orgIdOptions" :key="item" :label="item.name" :value="item.id">
+            <el-option v-for="item in appList" :key="item.id" :label="item.id" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -100,41 +99,51 @@
           <el-input v-model="temp.fRemark"></el-input>
         </el-form-item>
       </el-form>
-      <el-button @click="handleInputAdd" type="primary" icon="el-icon-plus" style="float:right;margin-bottom:10px;">添加</el-button>
-      <el-table :key='inputTableKey' :data="inputList" v-loading="inputListLoading" element-loading-text="加载中..." border stripe fit highlight-current-row style="width: 100%">
+      <el-button v-show="dialogStatus === 'update'" @click="handleInputAdd" type="primary" icon="el-icon-plus" style="float:right;margin-bottom:10px;">添加</el-button>
+      <el-table 
+        v-show="dialogStatus === 'update'" 
+        :key='inputTableKey' 
+        :data="inputList" 
+        v-loading="inputListLoading" 
+        element-loading-text="加载中..." 
+        border stripe fit highlight-current-row style="width: 100%">
         <el-table-column type="expand">
           <template slot-scope="scope">
             <el-form label-position="left" inline class="xn-table-expand">
               <el-form-item label="创建时间">
-                <span>{{ scope.row.fCreateTime }}</span>
+                <span>{{ scope.row.fCreateTime | parseTime}}</span>
               </el-form-item>
               <el-form-item label="创建人">
                 <span>{{ scope.row.fCreateUser }}</span>
               </el-form-item>
-              <el-form-item label="更新时间">
-                <span>{{ scope.row.fUpdateTime }}</span>
-              </el-form-item>
-              <el-form-item label="更新人">
-                <span>{{ scope.row.fUpdateUser }}</span>
-              </el-form-item>
             </el-form>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="名称">
+        <el-table-column width="100px" label="名称">
           <template slot-scope="scope">
             <span>{{scope.row.fFieldName}}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="备注">
+        <el-table-column min-width="100px" label="备注">
           <template slot-scope="scope">
             <span>{{scope.row.fRemark}}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="是否必须">
+        <el-table-column width="70px" align="center" label="是否必须">
           <template slot-scope="scope">
             <span>{{scope.row.fIsRequired | isRequiredFilter}}</span>
           </template>
         </el-table-column>
+      <el-table-column width="180px" label="更新时间">
+        <template slot-scope="scope">
+          <span>{{ scope.row.fUpdateTime | parseTime}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column width="100px" label="更新人">
+        <template slot-scope="scope">
+          <span>{{ scope.row.fUpdateUser }}</span>
+        </template>
+      </el-table-column>
         <el-table-column align="center" :label="$t('table.actions')" width="100px" class-name="small-padding fixed-width" fixed="right">
           <template slot-scope="scope">
             <el-button type="primary" class="xn-btn-mini" icon="el-icon-edit" @click="handleInputAdding(scope.row)"></el-button>
@@ -145,7 +154,9 @@
       <el-dialog
         :title="textMap[dialogAddingInputStatus]"
         :visible.sync="dialogAddingInputVisible"
-        append-to-body>
+        append-to-body
+        width="30%" 
+        :close-on-click-modal="false">
         <el-form :rules="inputRules" ref="dataForm" :model="inputTemp" label-position="left" label-width="130px">
           <el-form-item label="名称" prop="fFieldName">
             <el-input v-model="inputTemp.fFieldName"></el-input>
@@ -156,8 +167,8 @@
           </el-form-item>
           <el-form-item label="是否必须" prop="fIsRequired">
             <el-select v-model="inputTemp.fIsRequired" placeholder="请选择">
-              <el-option label="否" :value="1"></el-option>
-              <el-option label="是" :value="1"></el-option>
+              <el-option label="否" :value="false"></el-option>
+              <el-option label="是" :value="true"></el-option>
             </el-select>
           </el-form-item>
         </el-form>
@@ -179,6 +190,7 @@
 <script>
 import waves from '@/directive/waves' // 水波纹指令
 import tableUtil from '@/utils/tableUtil'
+import { fetchList, createData, updateData, deleteData } from '@/api/common'
 
 export default {
   name: 'ruleSet',
@@ -189,17 +201,15 @@ export default {
   data() {
     return {
       entityName: 'ruleSet',
-      orgIdOptions: [{id: 1, name: "牛鼎丰"}],
       listQuery: {
         appId: undefined,
-        name: undefined,
+        ruleId: undefined,
         bizClass: undefined,
         remark: undefined
       },
       temp: {
         fAutoId: undefined,
         fAppId: '',
-        OrgId: '',
         fRuleId: '',
         fBizClass: '',
         fRemark: ''
@@ -210,16 +220,19 @@ export default {
         fRemark: [{ required: true, message: '备注必填', trigger: 'blur' }]
       },
       inputTableKey: 11,
-      inputList: [{fAutoId: 1,
-        fFieldName: 'idNum',
-        fRemark: '身份证号',
-        fIsRequired: 1}],
+      inputList: [],
+      inputListQuery: {
+        ruleSet: undefined,
+        page: 1,
+        limit: -1
+      },
       inputListLoading: false,
       inputTemp: {
         fAutoId: undefined,
+        fRuleSetId: undefined,
         fFieldName: '',
         fRemark: '',
-        fIsRequired: ''
+        fIsRequired: false
       },
       inputRules: {
         fFieldName: [{ required: true, message: '名称必填', trigger: 'blur' }],
@@ -230,18 +243,45 @@ export default {
     }
   },
   methods: {
-    handleImport() {
+    resetTemp() {
+      for (let key in this.temp) {
+        this.temp[key] = undefined
+      }
+      this.inputList = []
+      for (let key in this.inputTemp) {
+        this.inputTemp[key] = undefined
+      }
+    },
+    handleUpdate(row) {
+      this.temp = Object.assign({}, row) // copy obj
+      this.dialogStatus = 'update'
+      this.dialogFormVisible = true
+      this.inputListQuery.ruleSet = this.temp.fAutoId
+      this.getInputList()
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    getInputList() {
+      this.inputListLoading = true
+      fetchList('ruleSetInput', this.inputListQuery).then(response => {
+        this.inputList = response.data.data
+        this.inputListLoading = false
+      })
+    },
+    handleImport(row) {
 
     },
-    handleExport() {
+    handleExport(row) {
 
     },
     resetInputTemp() {
       this.inputTemp = {
         fAutoId: undefined,
+        fRuleSetId: undefined,
         fFieldName: '',
         fRemark: '',
-        fIsRequired: ''
+        fIsRequired: false
       }
     },
     handleInputAdd() {
@@ -261,10 +301,11 @@ export default {
       })
     },
     createInputData() {
+      this.inputTemp.fRuleSetId = this.temp.fAutoId
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          createData('ruleSetInpt', this.temp).then(() => {
-            this.getList()
+          createData('ruleSetInput', this.inputTemp).then(() => {
+            this.getInputList()
             this.dialogAddingInputVisible = false
             this.$notify({
               title: '成功',
@@ -280,8 +321,8 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.inputTemp)
-          updateData('ruleSetInpt', tempData).then(() => {
-            this.getList()
+          updateData('ruleSetInput', tempData).then(() => {
+            this.getInputList()
             this.dialogAddingInputVisible = false
             this.$notify({
               title: '成功',
@@ -300,8 +341,8 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteData('ruleSetInpt', temp).then(() => {
-          this.getList()
+        deleteData('ruleSetInput', temp).then(() => {
+          this.getInputList()
           this.$notify({
             title: '成功',
             message: '删除成功',

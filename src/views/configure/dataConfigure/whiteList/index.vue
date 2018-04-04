@@ -2,14 +2,14 @@
   <div class="app-container calendar-list-container">
     <div class="header-container">
       <el-select clearable class="filter-item" v-model="listQuery.appId" placeholder="业务ID">
-        <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
+        <el-option v-for="item in appList" :key="item.id" :label="item.id" :value="item.id">
         </el-option>
       </el-select>
       <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="姓名" v-model="listQuery.name">
       </el-input>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="身份证号" v-model="listQuery.idcard">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="身份证号" v-model="listQuery.idNum">
       </el-input>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="手机号" v-model="listQuery.phone">
+      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="手机号" v-model="listQuery.mobile">
       </el-input>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-refresh" @click="handleResetFilter">{{$t('table.reset')}}</el-button>
@@ -21,13 +21,13 @@
         <template slot-scope="scope">
           <el-form label-position="left" inline class="xn-table-expand">
             <el-form-item label="创建时间">
-              <span>{{ scope.row.fCreateTime }}</span>
+              <span>{{ scope.row.fCreateTime | parseTime}}</span>
             </el-form-item>
             <el-form-item label="创建人">
               <span>{{ scope.row.fCreateUser }}</span>
             </el-form-item>
             <el-form-item label="更新时间">
-              <span>{{ scope.row.fUpdateTime }}</span>
+              <span>{{ scope.row.fUpdateTime | parseTime}}</span>
             </el-form-item>
             <el-form-item label="更新人">
               <span>{{ scope.row.fUpdateUser }}</span>
@@ -35,32 +35,32 @@
           </el-form>
         </template>
       </el-table-column>
-      <el-table-column width="100px" align="center" label="业务ID">
+      <el-table-column width="100px" label="业务ID">
         <template slot-scope="scope">
           <span>{{scope.row.fAppId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="80px" align="center" label="姓名">
+      <el-table-column width="80px" label="姓名">
         <template slot-scope="scope">
           <span>{{scope.row.fName}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="身份证号">
+      <el-table-column width="200px" label="身份证号">
         <template slot-scope="scope">
           <span>{{scope.row.fIdNum}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="120px" align="center" label="手机号">
+      <el-table-column width="120px" label="手机号">
         <template slot-scope="scope">
           <span>{{scope.row.fMobile}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="公司">
+      <el-table-column width="200px" label="公司">
         <template slot-scope="scope">
           <span>{{scope.row.fCompany}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" label="职位">
+      <el-table-column width="150px" label="职位">
         <template slot-scope="scope">
           <span>{{scope.row.fPosition}}</span>
         </template>
@@ -70,7 +70,7 @@
           <span>{{scope.row.fType}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="80px" align="center" label="备注">
+      <el-table-column min-width="80px" label="备注">
         <template slot-scope="scope">
           <span>{{scope.row.fRemark}}</span>
         </template>
@@ -88,16 +88,16 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="45%" :close-on-click-modal="false">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
         <el-form-item label="业务ID" prop="fAppId">
           <el-select class="filter-item" v-model="temp.fAppId" placeholder="请选择">
-            <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
+            <el-option v-for="item in appList" :key="item.id" :label="item.id" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="身份证号" prop="fidNum">
-          <el-input v-model="temp.fidNum"></el-input>
+        <el-form-item label="身份证号" prop="fIdNum">
+          <el-input v-model="temp.fIdNum"></el-input>
           </el-date-picker>
         </el-form-item>
         <el-form-item label="姓名" prop="fName">
@@ -130,28 +130,29 @@
 
 <script>
 import waves from '@/directive/waves' // 水波纹指令
-import tableUtil from '@/utils/tableUtil'
+import dynamicTableUtil from '@/utils/dynamicTableUtil'
+import { fetchList } from '@/api/common'
+import { createDynamicTableData, updateDynamicTableData, deleteDynamicTableData } from '@/api/common'
 
 export default {
   name: 'whiteList',
   directives: {
     waves
   },
-  mixins: [tableUtil],
+  mixins: [dynamicTableUtil],
   data() {
     return {
       entityName: 'whiteList',
-      ruleSetOptions: [{id:"testRule",name:"测试规则集"}],
-      appIdOptions: ["credit-ndf"],
+      ruleSetOptions: [],
       listQuery: {
         appId: undefined,
         name: undefined,
-        idcard: undefined,
-        phone: undefined
+        idNum: undefined,
+        mobile: undefined
       },
       temp: {
         fAppId: undefined,
-        fidNum: undefined,
+        fIdNum: undefined,
         fName: undefined,
         fMobile: undefined,
         fCompany: undefined,
@@ -161,11 +162,75 @@ export default {
       },
       rules: {
         fAppId: [{ required: true, message: '业务ID必选', trigger: 'change' }],
-        fidNum: [{ required: true, message: '身份证号必填', trigger: 'blur' }]
+        fIdNum: [{ required: true, message: '身份证号必填', trigger: 'blur' }]
       }
     }
   },
-  filters: {
+  methods: {
+    getList() {
+      this.listLoading = true
+      fetchList(this.entityName, this.listQuery).then(response => {
+        this.list = response.data.data
+        this.total = response.data.total
+        this.listLoading = false
+      })
+    },
+    createData() {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          this.tableName = 0
+          createDynamicTableData(this.entityName, this.tableName, this.temp).then(() => {
+            this.getList()
+            this.dialogFormVisible = false
+            this.$notify({
+              title: '成功',
+              message: '创建成功',
+              type: 'success',
+              duration: 2000
+            })
+          })
+        }
+      })
+    },
+    updateData() {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          const tempData = Object.assign({}, this.temp)
+          this.tableName = tempData.fIdNum
+          updateDynamicTableData(this.entityName, this.tableName, tempData).then(() => {
+            this.getList()
+            this.dialogFormVisible = false
+            this.$notify({
+              title: '成功',
+              message: '更新成功',
+              type: 'success',
+              duration: 2000
+            })
+          })
+        }
+      })
+    },
+    handleDelete(row) {
+      let temp = Object.assign({}, row)
+      this.tableName = temp.fIdNum
+      this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteDynamicTableData(this.entityName, this.tableName, temp).then(() => {
+          this.getList()
+          this.$notify({
+            title: '成功',
+            message: '删除成功',
+            type: 'success',
+            duration: 2000
+          })
+        })
+      }).catch(() => {
+
+      });
+    }
   }
 }
 </script>

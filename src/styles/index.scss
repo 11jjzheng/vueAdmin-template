@@ -206,7 +206,7 @@ code {
 }
 
 .xn-table-expand {
-  font-size: 0;
+  font-size: 12px;
   label {
     width: 90px;
     color: #99a9bf;
@@ -214,12 +214,12 @@ code {
   .el-form-item {
     margin-right: 0;
     margin-bottom: 0;
-    width: 50%;
+    width: 49%;
   }
 }
 
 .xn-table-code-expand {
-  font-size: 0;
+  font-size: 12px;
   label {
     width: 90px;
     color: #99a9bf;
@@ -227,7 +227,7 @@ code {
   .el-form-item {
     margin-right: 0;
     margin-bottom: 0;
-    width: 50%;
+    width: 49%;
   }
   .el-form-item__content {
     width: 98%
@@ -236,4 +236,8 @@ code {
 
 .el-button+.el-button {
   margin-left: 0px; 
+}
+
+.function-btn+.function-btn {
+  margin-right: 5px; 
 }

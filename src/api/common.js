@@ -51,3 +51,48 @@ export function fetchTree(url, params) {
     params
   })
 }
+
+export function fetchDynamicTableList(entityName, tableName, query) {
+  let url = '/' + entityName + '/list' + ((tableName !== undefined && tableName !== '') ? '/' + tableName : '') 
+  return request({
+    url: url,
+    method: 'get',
+    params: query
+  })
+}
+
+export function createDynamicTableData(entityName, tableName, data) {
+  let url = '/' + entityName + '/insert' + ((tableName !== undefined && tableName !== '') ? '/' + tableName : '') 
+  return request({
+    url: url,
+    method: 'post',
+    transformRequest: [function(data) {
+      return JSON.stringify(data)
+    }],
+    data
+  })
+}
+
+export function updateDynamicTableData(entityName, tableName, data) {
+  let url = '/' + entityName + '/update' + ((tableName !== undefined && tableName !== '') ? '/' + tableName : '') 
+  return request({
+    url: url,
+    method: 'post',
+    transformRequest: [function(data) {
+      return JSON.stringify(data)
+    }],
+    data
+  })
+}
+
+export function deleteDynamicTableData(entityName, tableName, data) {
+  let url = '/' + entityName + '/delete' + ((tableName !== undefined && tableName !== '') ? '/' + tableName : '') 
+  return request({
+    url: url,
+    method: 'post',
+    transformRequest: [function(data) {
+      return JSON.stringify(data)
+    }],
+    data
+  })
+}
