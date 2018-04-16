@@ -52,8 +52,8 @@
         <template slot-scope="scope">
           <el-button v-if="update_permission(entityName)" type="primary" class="xn-btn-mini" icon="el-icon-edit" @click="handleUpdate(scope.row)"></el-button>
           <el-button v-if="delete_permission(entityName)" type="danger" class="xn-btn-mini" icon="el-icon-delete" @click="handleDelete(scope.row)"></el-button>
-          <el-button v-if="function_permission(entityName, 'role')" type="success" icon="el-icon-setting" @click="handleRole(scope.row)">角色</el-button>
-          <el-button v-if="function_permission(entityName, 'permission')" type="warning" icon="el-icon-view" @click="handlePermission(scope.row)">权限</el-button>
+          <el-button type="success" icon="el-icon-setting" @click="handleRole(scope.row)">角色</el-button>
+          <el-button type="warning" icon="el-icon-view" @click="handlePermission(scope.row)">权限</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -105,7 +105,7 @@
         </el-table-column>
         <el-table-column align="center" :label="$t('table.actions')" width="100px" class-name="small-padding fixed-width" fixed="right">
           <template slot-scope="scope">
-            <el-button type="danger" class="xn-btn-mini" icon="el-icon-delete" @click="handleRoleDelete(scope.row)"></el-button>
+            <el-button v-if="function_permission('userRoleDelete')" type="danger" class="xn-btn-mini" icon="el-icon-delete" @click="handleRoleDelete(scope.row)"></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -126,7 +126,7 @@
           </el-table-column>
           <el-table-column align="center" :label="$t('table.actions')" width="100px" class-name="small-padding fixed-width" fixed="right">
             <template slot-scope="scope">
-              <el-button type="success" class="xn-btn-mini" icon="el-icon-plus" @click="handleRoleAdding(scope.row)"></el-button>
+              <el-button v-if="function_permission('userRoleInsert')" type="success" class="xn-btn-mini" icon="el-icon-plus" @click="handleRoleAdding(scope.row)"></el-button>
             </template>
           </el-table-column>
         </el-table>

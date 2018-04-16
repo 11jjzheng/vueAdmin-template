@@ -41,89 +41,6 @@ function filterAsyncRouter(asyncRouterMap, functions) {
   return accessedRouters
 }
 
-const List = [
-{
-  name: 'ruleItem', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'ruleSetParam', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'scoreCardDegree', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'keyword', 
-  functions: ['create', 'update', 'delete', 'import']
-},
-{
-  name: 'ruleSet', 
-  functions: ['create', 'update', 'delete', 'import', 'export', 'check']
-}, 
-{
-  name: 'rulePre', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'ruleItemLogic', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'channel', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'cityInfo', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'whiteList', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'cityClassificationMapping', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'rawData', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'ruleResult', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'rejectList', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'user', 
-  functions: ['create', 'update', 'delete', 'role', 'permission']
-}, 
-{
-  name: 'function', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'role', 
-  functions: ['create', 'update', 'delete', 'function-permission', 'data-permission']
-}, 
-{
-  name: 'log', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'organization', 
-  functions: ['create', 'update', 'delete']
-}, 
-{
-  name: 'application', 
-  functions: ['create', 'update', 'delete']
-},
-]
-
 const permission = {
   state: {
     routers: constantRouterMap,
@@ -149,7 +66,7 @@ const permission = {
         fetchPermission().then(response => {
           let accessedRouters = filterAsyncRouter(asyncRouterMap, response.data)
           commit('SET_ROUTERS', accessedRouters)
-          commit('SET_FUNCTION_PERMISSION', List)
+          commit('SET_FUNCTION_PERMISSION', response.data)
           resolve()
         })
       })

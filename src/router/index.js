@@ -64,10 +64,16 @@ export const asyncRouterMap = [
     name: 'application',
     meta: { title: '规则配置', icon: 'chart', name: 'route/ruleengine/ruleItem/list' },
     children: [{
-      path: 'ruleItem/:id',
+      path: 'ruleItem/:ruleSetId',
       component: _import('application/ruleItem/index'),
       name: 'ruleItem',
-      meta: { title: '规则配置', icon: 'chart', name: 'common/ruleSet' }
+      meta: { title: '规则配置', icon: 'chart', name: 'common/ruleSet', useDataPermission: true }
+    },
+    {
+      path: 'ruleItemCreate/:ruleSetId',
+      component: _import('application/ruleItem/main'),
+      name: 'ruleItemCreate',
+      meta: { title: '新增规则项', name: 'common/ruleSet', hidden: true}
     }]
   },
 
@@ -302,7 +308,8 @@ export const asyncRouterMap = [
               title: '功能列表',
               icon: 'form',
               name: 'route/ruleengine/function/list',
-              hidden: true
+              hidden: true,
+              shorParent: true
             }
           }
         ]

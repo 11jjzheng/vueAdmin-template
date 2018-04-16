@@ -21,13 +21,13 @@
         <template slot-scope="scope">
           <el-form label-position="left" inline class="xn-table-expand">
             <el-form-item label="创建时间">
-              <span>{{ scope.row.fCreateTime }}</span>
+              <span>{{ scope.row.fCreateTime | parseTime}}</span>
             </el-form-item>
             <el-form-item label="创建人">
               <span>{{ scope.row.fCreateUser }}</span>
             </el-form-item>
             <el-form-item label="更新时间">
-              <span>{{ scope.row.fUpdateTime }}</span>
+              <span>{{ scope.row.fUpdateTime | parseTime}}</span>
             </el-form-item>
             <el-form-item label="更新人">
               <span>{{ scope.row.fUpdateUser }}</span>
@@ -45,20 +45,21 @@
           <span>{{scope.row.fOrder}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="400px" align="center" label="说明">
+      <el-table-column width="400px" label="说明">
         <template slot-scope="scope">
           <span>{{scope.row.fRemark}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="450px" align="center" label="表达式">
+      <el-table-column min-width="450px" label="表达式">
         <template slot-scope="scope">
-          <span>{{scope.row.fExpression}}</span>
+          <span>{{scope.row.fRuleExpression}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="120px" class-name="small-padding fixed-width" fixed="right">
         <template slot-scope="scope">
-          <el-button v-if="update_permission(entityName)" type="primary" size="mini" class="xn-btn-mini" icon="el-icon-edit" @click="handleUpdate(scope.row)"></el-button>
-          <el-button v-if="delete_permission(entityName)" type="danger" size="mini" class="xn-btn-mini" icon="el-icon-delete" @click="handleDelete(scope.row)"></el-button>
+          <el-button v-if="update_permission(entityName)" type="primary" class="xn-btn-mini" icon="el-icon-edit" @click="handleUpdate(scope.row)"></el-button>
+          <el-button v-if="function_permission('ruleItemOpen') && scope.row.fState === 2" type="success" @click="handleEnable(scope.row)">启用</el-button>
+          <el-button v-if="function_permission('ruleItemClose') && scope.row.fState === 1" type="danger" @click="handleDisable(scope.row)">停用</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -73,6 +74,7 @@
 <script>
 import waves from '@/directive/waves' // 水波纹指令
 import tableUtil from '@/utils/tableUtil'
+import { enableData, disableData } from '@/api/ruleItem'
 
 export default {
   name: 'ruleItem',
@@ -84,19 +86,86 @@ export default {
     return {
       entityName: 'ruleItem',
       listQuery: {
+        ruleSetId: this.$route.params.ruleSetId,
         remark: undefined,
         expression: undefined,
         status: undefined,
         createUser: undefined
-      },
-      temp: {
-        fAutoId: undefined,
-        fAppId: '',
-        fType: '',
-        fKeywordList: ''
       }
     }
-  }
+  },
+  watch: {
+    $route: function(curVal, oldVal) {
+      let curRuleSetId = curVal.params.ruleSetId
+      let oldRuleSetId = oldVal.params.ruleSetId
+      if (curRuleSetId != oldRuleSetId) {
+        this.listQuery.ruleSetId = curRuleSetId
+        this.getList()
+      }
+    }
+  },
+  methods: {
+    handleResetFilter() {
+      this.listQuery = {
+        page: 1,
+        limit: 10,
+        sort: '+id',
+        remark: undefined,
+        expression: undefined,
+        status: undefined,
+        createUser: undefined,
+        ruleSetId: this.$route.params.ruleSetId
+      }
+      this.getList()
+    },
+    handleEnable(row) {
+      let temp = Object.assign({}, row)
+      this.$confirm('此操作将启用该数据, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        enableData(temp).then(() => {
+          this.getList()
+          this.$notify({
+            title: '成功',
+            message: '启用成功',
+            type: 'success',
+            duration: 2000
+          })
+        })
+      }).catch(() => {
+
+      });
+    },
+    handleDisable(row) {
+      let temp = Object.assign({}, row)
+      this.$confirm('此操作将停用该数据, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        disableData(temp).then(() => {
+          this.getList()
+          this.$notify({
+            title: '成功',
+            message: '停用成功',
+            type: 'success',
+            duration: 2000
+          })
+        })
+      }).catch(() => {
+
+      });
+    },
+    handleCreate() {
+      let ruleSetId = this.listQuery.ruleSetId
+      this.$router.push({ path: '/application/ruleItemCreate/' + ruleSetId, params: { 'tagName': '新增规则项' }})
+    },
+    handleUpdate(row) {
+      
+    },
+  },
 }
 </script>
 

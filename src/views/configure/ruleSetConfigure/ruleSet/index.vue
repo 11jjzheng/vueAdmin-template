@@ -13,7 +13,7 @@
       </el-input>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-refresh" @click="handleResetFilter">{{$t('table.reset')}}</el-button>
-      <el-button v-if="function_permission(entityName, 'import')" class="function-btn" type="primary" @click="handleImport()">导入</el-button>
+      <el-button v-if="function_permission('ruleSetImport')" class="function-btn" type="primary" @click="handleImport()" icon="el-icon-upload2">导入</el-button>
       <el-button v-if="create_permission(entityName)" class="function-btn" @click="handleCreate" type="primary" icon="el-icon-plus">{{$t('table.add')}}</el-button>
     </div>
 
@@ -67,8 +67,8 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="240px" class-name="small-padding fixed-width" fixed="right">
         <template slot-scope="scope">
-          <el-button v-if="function_permission(entityName, 'import')" type="primary" @click="handleImport(scope.row)">导入</el-button>
-          <el-button v-if="function_permission(entityName, 'export')" type="primary" @click="handleExport(scope.row)">导出</el-button>
+          <el-button v-if="function_permission('ruleSetImport')" type="primary" @click="handleImport(scope.row)" icon="el-icon-upload2">导入</el-button>
+          <el-button v-if="function_permission('ruleSetExport')" type="primary" @click="handleExport(scope.row)" icon="el-icon-download">导出</el-button>
           <el-button v-if="update_permission(entityName)" type="primary" class="xn-btn-mini" icon="el-icon-edit" @click="handleUpdate(scope.row)"></el-button>
           <el-button v-if="delete_permission(entityName)" type="danger" class="xn-btn-mini" icon="el-icon-delete" @click="handleDelete(scope.row)"></el-button>
         </template>

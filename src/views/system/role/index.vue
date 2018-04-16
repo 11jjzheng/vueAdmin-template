@@ -52,8 +52,8 @@
         <template slot-scope="scope">
           <el-button v-if="update_permission(entityName)" type="primary" class="xn-btn-mini" icon="el-icon-edit" @click="handleUpdate(scope.row)"></el-button>
           <el-button v-if="delete_permission(entityName)" type="danger" class="xn-btn-mini" icon="el-icon-delete" @click="handleDelete(scope.row)"></el-button>
-          <el-button v-if="function_permission(entityName, 'function-permission')" style="width:90px" type="success" icon="el-icon-setting" @click="handleFunctionPermissionAdd(scope.row)">操作权限</el-button>
-          <el-button v-if="function_permission(entityName, 'data-permission')" style="width:90px" type="warning" icon="el-icon-setting" @click="handleDataPermissionAdd(scope.row)">数据权限</el-button>
+          <el-button v-if="function_permission('rolePermission')" style="width:90px" type="success" icon="el-icon-setting" @click="handleFunctionPermissionAdd(scope.row)">操作权限</el-button>
+          <el-button v-if="function_permission('roleRuleSet')" style="width:90px" type="warning" icon="el-icon-setting" @click="handleDataPermissionAdd(scope.row)">数据权限</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -94,11 +94,11 @@
         treeId="function-permission-tree" 
         url="role/permission/list" 
         :params="functionPermissionTreeParams" 
-        :checkEnable="true"
+        :checkEnable="function_permission('rolePermissionUpdate')"
         :chkboxType="chkboxType"></z-tree>
       <div slot="footer" class="dialog-footer">
         <el-button @click="functionPermissionDialogFormVisible = false">{{$t('table.cancel')}}</el-button>
-        <el-button type="primary" @click="handleFunctionPermissionAdding">{{$t('table.confirm')}}</el-button>
+        <el-button v-if="function_permission('rolePermissionUpdate')" type="primary" @click="handleFunctionPermissionAdding">{{$t('table.confirm')}}</el-button>
       </div>
     </el-dialog>
 
@@ -108,11 +108,11 @@
         treeId="data-permission-tree" 
         url="role/data/permission/list" 
         :params="dataPermissionTreeParams"
-        :checkEnable="true"
+        :checkEnable="function_permission('roleRuleSetUpdate')"
         :chkboxType="chkboxType"></z-tree>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dataPermissionDialogFormVisible = false">{{$t('table.cancel')}}</el-button>
-        <el-button type="primary" @click="handleDataPermissionAdding">{{$t('table.confirm')}}</el-button>
+        <el-button v-if="function_permission('roleRuleSetUpdate')" type="primary" @click="handleDataPermissionAdding">{{$t('table.confirm')}}</el-button>
       </div>
     </el-dialog>
   </div>

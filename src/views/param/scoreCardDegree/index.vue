@@ -2,11 +2,13 @@
   <div class="app-container calendar-list-container">
     <div class="header-container">
       <el-select clearable class="filter-item" v-model="listQuery.appId" placeholder="业务ID">
-        <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
+        <el-option v-for="item in appList" :key="item.id" :label="item.id" :value="item.id">
         </el-option>
       </el-select>
-      <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="规则ID" v-model="listQuery.ruleId">
-      </el-input>
+      <el-select clearable class="filter-item" v-model="listQuery.ruleId" placeholder="规则集">
+        <el-option v-for="item in ruleSetOptions" :key="item.fRuleId" :label="item.fRemark" :value="item.fRuleId">
+        </el-option>
+      </el-select>
       <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="等级" v-model="listQuery.degree">
       </el-input>
       <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="备注" v-model="listQuery.remark">
@@ -21,13 +23,13 @@
         <template slot-scope="scope">
           <el-form label-position="left" inline class="xn-table-expand">
             <el-form-item label="创建时间">
-              <span>{{ scope.row.fCreateTime }}</span>
+              <span>{{ scope.row.fCreateTime | parseTime}}</span>
             </el-form-item>
             <el-form-item label="创建人">
               <span>{{ scope.row.fCreateUser }}</span>
             </el-form-item>
             <el-form-item label="更新时间">
-              <span>{{ scope.row.fUpdateTime }}</span>
+              <span>{{ scope.row.fUpdateTime | parseTime}}</span>
             </el-form-item>
             <el-form-item label="更新人">
               <span>{{ scope.row.fUpdateUser }}</span>
@@ -40,22 +42,22 @@
           <span>{{scope.row.fAutoId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" label="业务ID">
+      <el-table-column width="150px" label="业务ID">
         <template slot-scope="scope">
           <span>{{scope.row.fAppId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200px" align="center" label="规则ID">
+      <el-table-column width="200px" label="规则ID">
         <template slot-scope="scope">
           <span>{{scope.row.fRuleId}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="100px" align="center" label="等级">
+      <el-table-column width="100px" label="等级">
         <template slot-scope="scope">
           <span>{{scope.row.fDegree}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="250px" align="center" label="备注">
+      <el-table-column min-width="250px" label="备注">
         <template slot-scope="scope">
           <span>{{scope.row.fRemark}}</span>
         </template>
@@ -75,12 +77,12 @@
           <span>{{scope.row.fRightInterval}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="80px" align="center" label="评分期">
+      <el-table-column width="80px" label="评分期">
         <template slot-scope="scope">
           <span>{{scope.row.fPeriod}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="80px" align="center" label="系数">
+      <el-table-column width="80px" label="系数">
         <template slot-scope="scope">
           <span>{{scope.row.fCoefficient}}</span>
         </template>
@@ -104,10 +106,10 @@
     </div>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px">
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="130px" :close-on-click-modal="false">
         <el-form-item label="业务ID" prop="fAppId">
           <el-select class="filter-item" v-model="temp.fAppId" placeholder="请选择">
-            <el-option v-for="item in appIdOptions" :key="item" :label="item" :value="item">
+            <el-option v-for="item in appList" :key="item.id" :label="item.id" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -154,6 +156,7 @@
 <script>
 import waves from '@/directive/waves' // 水波纹指令
 import tableUtil from '@/utils/tableUtil'
+import { fetchAllRuleSet } from '@/api/ruleSet'
 
 export default {
   name: 'scoreCardDegree',
@@ -164,7 +167,9 @@ export default {
   data() {
     return {
       entityName: 'scoreCardDegree',
+      ruleSetOptions: [],
       listQuery: {
+        appId: undefined,
         ruleId: undefined,
         degree: undefined,
         remark: undefined
@@ -189,6 +194,11 @@ export default {
         fRuleItemId: [{ required: true, message: '规则项ID必填', trigger: 'blur' }]
       }
     }
+  },
+  created() {
+    fetchAllRuleSet().then(response => {
+      this.ruleSetOptions = response.data
+    })
   }
 }
 </script>

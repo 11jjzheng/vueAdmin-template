@@ -82,28 +82,40 @@ export default {
       return false
     },
     generateRoute() {
-      if (this.$route.meta && this.$route.meta.hidden) {
-        // 如果是不显示的子tab，尝试显示父tab
-        let route = this.getRouteParent(this.addRouters, this.$route.name)
+      // 检查route的params是否有tagName, 若有则优先显示
+      // 若route定义为数据权限, 则优先采用数据权限的名称
+      // 若定义showParent, 则获取parent route
+      // 或者显示原始route, 除非tag标志不显示
+      let curRoute = this.$route
+      let curName = curRoute.name
+      let metaData = curRoute.meta
+      let tagName = curRoute.params.tagName
+      let result = {
+        path: curRoute.path,
+        meta: {}
+      }
+      if (tagName) {
+        result.name = tagName
+        result.meta.title = tagName
+        return result
+      }
+      if (metaData.useDataPermission) {
+        tagName = this.data_permission_name(curRoute.params.ruleSetId)
+        result.name = tagName
+        result.meta.title = tagName
+        return result
+      }
+      if (metaData.shorParent) {
+        let route = this.getRouteParent(this.addRouters, curName)
         return route
       }
-      if (this.$route.name && this.$route.name != 'dashboard' && this.$route.name != 'ruleItem') {
-        return this.$route
-      } else if (this.$route.name && this.$route.name === 'ruleItem') {
-        // 数据权限特殊处理, 遍历数据权限重新创建tag相关数据
-        let name = this.data_permission_name(this.$route.params.id)
-        return {
-          path: this.$route.path, 
-          name: name,
-          meta: {
-            title: name
-          }
-        }
+      if (curName && curName !== 'dashboard') {
+        return curRoute
       }
       return false
     },
     isActive(route) {
-      return (this.$route.meta.hidden && this.$route.path.indexOf(route.path) > -1) || route.path === this.$route.path || route.name === this.$route.name
+      return (this.$route.meta.hidden && this.$route.path.indexOf(route.path) > -1) || route.path === this.$route.path
     },
     addViewTags() {
       const route = this.generateRoute()
@@ -117,6 +129,9 @@ export default {
         return
       }
       const tags = this.$refs.tag
+      if (tags == undefined) {
+        return
+      }
       this.$nextTick(() => {
         for (const tag of tags) {
           if (tag.to === this.$route.path) {

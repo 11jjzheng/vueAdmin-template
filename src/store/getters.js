@@ -10,17 +10,17 @@ const getters = {
   globalUser: state => state.user.globalUser,
   orgId: state => state.user.orgId,
   permission_routers: state => state.permission.routers,
-  function_permission: state => (name, func) => {
-    return state.permission.functionPermission.find(f => f.name === name).functions.indexOf(func) > -1
+  function_permission: state => (name) => {
+    return state.permission.functionPermission.find(f => f.code === name)
   },
   create_permission: state => (name) => {
-    return state.permission.functionPermission.find(f => f.name === name).functions.indexOf('create') > -1
+    return state.permission.functionPermission.find(f => f.code === (name + 'Insert'))
   },
   update_permission: state => (name) => {
-    return state.permission.functionPermission.find(f => f.name === name).functions.indexOf('update') > -1
+    return state.permission.functionPermission.find(f => f.code === (name + 'Update'))
   },
   delete_permission: state => (name) => {
-    return state.permission.functionPermission.find(f => f.name === name).functions.indexOf('delete') > -1
+    return state.permission.functionPermission.find(f => f.code === (name + 'Delete'))
   },
   data_permission: state => state.permission.dataPermission,
   data_permission_name: state => (id) => {
