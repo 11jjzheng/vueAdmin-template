@@ -5,13 +5,14 @@ const tagsView = {
   },
   mutations: {
     ADD_VISITED_VIEWS: (state, view) => {
-      if (state.visitedViews.some(v => v.path === view.path)) {
+      if (state.visitedViews.some(v => v.path === view.path && v.name === view.name)) {
         return
       }
       state.visitedViews.push({
         name: view.name,
         path: view.path,
-        title: view.meta.title || 'no-name'
+        title: view.meta.title || 'no-name',
+        query: view.query
       })
       if (!view.meta.noCache) {
         state.cachedViews.push(view.name)
@@ -19,7 +20,7 @@ const tagsView = {
     },
     DEL_VISITED_VIEWS: (state, view) => {
       for (const [i, v] of state.visitedViews.entries()) {
-        if (v.path === view.path) {
+        if (v.path === view.path && v.name === view.name) {
           state.visitedViews.splice(i, 1)
           break
         }

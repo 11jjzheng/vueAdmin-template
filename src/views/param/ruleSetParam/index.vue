@@ -21,7 +21,7 @@
       <el-button class="filter-btn" type="primary" v-waves icon="el-icon-refresh" @click="handleResetFilter">{{$t('table.reset')}}</el-button>
       <el-button v-if="multipleSelection.length > 0" class="function-btn" @click="cancelDelete()" icon="el-icon-close" key="btn-cancel-delete"></el-button>
       <el-button v-if="delete_permission(entityName)" class="function-btn" type="danger" icon="el-icon-delete" @click="handleDelete()" :disabled="multipleSelection.length <= 0"></el-button>
-      <el-button v-if="create_permission(entityName)" class="function-btn" @click="handleCreate" type="primary" icon="el-icon-plus">{{$t('table.add')}}</el-button>
+<!--       <el-button v-if="create_permission(entityName)" class="function-btn" @click="handleCreate" type="primary" icon="el-icon-plus">{{$t('table.add')}}</el-button> -->
     </div>
 
     <el-table ref="dataTable" :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." 

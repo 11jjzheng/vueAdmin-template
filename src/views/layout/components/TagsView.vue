@@ -2,7 +2,7 @@
   <div class="tags-view-container">
     <scroll-pane class='tags-view-wrapper' ref='scrollPane'>
       <router-link ref='tag' class="tags-view-item" :class="isActive(tag)?'active':''" v-for="tag in Array.from(visitedViews)"
-        :to="tag.path" :key="tag.path" @contextmenu.prevent.native="openMenu(tag,$event)">
+        :to="{ path: tag.path, query: tag.query }" :key="tag.path + tag.name" @contextmenu.prevent.native="openMenu(tag,$event)">
         {{generateTitle(tag.title)}}
         <span class='el-icon-close' @click.prevent.stop='closeSelectedTag(tag)'></span>
       </router-link>
@@ -89,10 +89,11 @@ export default {
       let curRoute = this.$route
       let curName = curRoute.name
       let metaData = curRoute.meta
-      let tagName = curRoute.params.tagName
+      let tagName = curRoute.query.tagName
       let result = {
         path: curRoute.path,
-        meta: {}
+        meta: {},
+        query: curRoute.query
       }
       if (tagName) {
         result.name = tagName
@@ -105,17 +106,24 @@ export default {
         result.meta.title = tagName
         return result
       }
-      if (metaData.shorParent) {
+      if (metaData.showParent) {
         let route = this.getRouteParent(this.addRouters, curName)
         return route
       }
       if (curName && curName !== 'dashboard') {
-        return curRoute
+        let title = metaData.title
+        for (let key in curRoute.params) {
+          title = title.replace(new RegExp(key,'g'), curRoute.params[key])
+        }
+        result.name = title
+        result.meta.title = title
+        return result
       }
       return false
     },
     isActive(route) {
-      return (this.$route.meta.hidden && this.$route.path.indexOf(route.path) > -1) || route.path === this.$route.path
+      const tempRoute = this.generateRoute()
+      return (tempRoute.meta.hidden && this.$route.path.indexOf(route.path) > -1) || (route.path === tempRoute.path && route.name === tempRoute.name)
     },
     addViewTags() {
       const route = this.generateRoute()
@@ -134,7 +142,7 @@ export default {
       }
       this.$nextTick(() => {
         for (const tag of tags) {
-          if (tag.to === this.$route.path) {
+          if (tag.to === this.$route.path && tag.name === this.$route.name) {
             this.$refs.scrollPane.moveToTarget(tag.$el)
             break
           }
@@ -146,7 +154,7 @@ export default {
         if (this.isActive(view)) {
           const latestView = views.slice(-1)[0]
           if (latestView) {
-            this.$router.push(latestView.path)
+            this.$router.push({path: latestView.path, query: latestView.query})
           } else {
             this.$router.push('/')
           }

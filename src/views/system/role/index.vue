@@ -23,17 +23,17 @@
           </el-form>
         </template>
       </el-table-column>
-      <el-table-column width="200px" label="组织">
+      <el-table-column width="180px" label="组织">
         <template slot-scope="scope">
           <span>{{scope.row.orgName | orgNameFilter}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="200px" label="编号">
+      <el-table-column width="180px" label="编号">
         <template slot-scope="scope">
           <span>{{scope.row.code}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="名称">
+      <el-table-column min-width="200px" label="名称">
         <template slot-scope="scope">
           <span>{{scope.row.name}}</span>
         </template>
@@ -43,7 +43,7 @@
           <span>{{scope.row.updateTime | parseTime}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="180px" label="更新人">
+      <el-table-column width="100px" label="更新人">
         <template slot-scope="scope">
           <span>{{scope.row.updateUser}}</span>
         </template>

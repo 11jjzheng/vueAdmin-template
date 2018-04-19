@@ -91,7 +91,8 @@ export default {
         expression: undefined,
         status: undefined,
         createUser: undefined
-      }
+      },
+      ruleSetName: this.$route.name
     }
   },
   watch: {
@@ -160,10 +161,13 @@ export default {
     },
     handleCreate() {
       let ruleSetId = this.listQuery.ruleSetId
-      this.$router.push({ path: '/application/ruleItemCreate/' + ruleSetId, params: { 'tagName': '新增规则项' }})
+      this.$router.push({ path: '/application/ruleItemCreate/' + ruleSetId})
     },
     handleUpdate(row) {
-      
+      let ruleSetId = this.listQuery.ruleSetId
+      let ruleItemId = row.fAutoId
+      let tagName = '编辑规则项-' + ruleItemId
+      this.$router.push({ path: '/application/ruleItemUpdate/' + ruleSetId + '/' + ruleItemId})
     },
   },
 }

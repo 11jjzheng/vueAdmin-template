@@ -11,22 +11,39 @@ const getters = {
   orgId: state => state.user.orgId,
   permission_routers: state => state.permission.routers,
   function_permission: state => (name) => {
-    return state.permission.functionPermission.find(f => f.code === name)
+    return state.permission.functionPermission.find(f => f.code === name) != undefined
   },
   create_permission: state => (name) => {
-    return state.permission.functionPermission.find(f => f.code === (name + 'Insert'))
+    return state.permission.functionPermission.find(f => f.code === (name + 'Insert')) != undefined
   },
   update_permission: state => (name) => {
-    return state.permission.functionPermission.find(f => f.code === (name + 'Update'))
+    return state.permission.functionPermission.find(f => f.code === (name + 'Update')) != undefined
   },
   delete_permission: state => (name) => {
-    return state.permission.functionPermission.find(f => f.code === (name + 'Delete'))
+    return state.permission.functionPermission.find(f => f.code === (name + 'Delete')) != undefined
   },
   data_permission: state => state.permission.dataPermission,
   data_permission_name: state => (id) => {
-    return state.permission.dataPermission.find(d => d.id == id).name
+    let temp = state.permission.dataPermission.find(d => d.id == id)
+    if (temp === undefined) {
+      return ''
+    }
+    return temp.name
   },
   addRouters: state => state.permission.addRouters,
-  errorLogs: state => state.errorLog.logs
+  errorLogs: state => state.errorLog.logs,
+  pageData: state => (id) => {
+    let temp = state.pageData.pageDatas.find(p => p.id === id)
+    if (temp === undefined) {
+      return undefined
+    }
+    return JSON.parse(JSON.stringify(temp, function(k, v){
+      if(v === undefined){
+          return "";
+      }else{
+          return v;
+      }
+    }))
+  }
 }
 export default getters

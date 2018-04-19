@@ -73,7 +73,13 @@ export const asyncRouterMap = [
       path: 'ruleItemCreate/:ruleSetId',
       component: _import('application/ruleItem/main'),
       name: 'ruleItemCreate',
-      meta: { title: '新增规则项', name: 'common/ruleSet', hidden: true}
+      meta: { title: '新增规则项', name: 'common/ruleSet', hidden: true, notKeepAlive: true}
+    },
+    {
+      path: 'ruleItemUpdate/:ruleSetId/:ruleItemId',
+      component: _import('application/ruleItem/main'),
+      name: 'ruleItemUpdate',
+      meta: { title: '编辑规则项-ruleItemId', name: 'common/ruleSet', hidden: true, notKeepAlive: true}
     }]
   },
 
@@ -309,7 +315,7 @@ export const asyncRouterMap = [
               icon: 'form',
               name: 'route/ruleengine/function/list',
               hidden: true,
-              shorParent: true
+              showParent: true
             }
           }
         ]
