@@ -160,16 +160,19 @@ export default {
           }
         }
       })
+      this.$store.dispatch('deletePageData', view.path)
     },
     closeOthersTags() {
       this.$router.push(this.selectedTag.path)
       this.$store.dispatch('delOthersViews', this.selectedTag).then(() => {
         this.moveToCurrentTag(true)
       })
+      this.$store.dispatch('delOtherPageData', view.path)
     },
     closeAllTags() {
       this.$store.dispatch('delAllViews')
       this.$router.push('/')
+      this.$store.dispatch('delAllPageData')
     },
     openMenu(tag, e) {
       this.visible = true

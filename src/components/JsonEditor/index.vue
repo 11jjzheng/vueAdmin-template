@@ -26,13 +26,18 @@ export default {
     readOnly: {
       type: Boolean,
       default: false
-    }
+    },
+    id: String
   },
   watch: {
     value(value) {
       const editor_value = this.jsonEditor.getValue()
       if (value !== editor_value) {
-        this.jsonEditor.setValue(JSON.stringify(this.value, null, 2))
+        try {
+          this.jsonEditor.setValue(JSON.stringify(this.value, null, 2))
+        } catch(err) {
+
+        }
       }
     }
   },
@@ -46,10 +51,13 @@ export default {
       readOnly: this.readOnly
     })
 
-    this.jsonEditor.setValue(JSON.stringify(JSON.parse(this.value), null, 2))
+    try {
+      this.jsonEditor.setValue(JSON.stringify(JSON.parse(this.value), null, 2))
+    } catch(err) {
+
+    }
     this.jsonEditor.on('change', cm => {
-      this.$emit('changed', cm.getValue())
-      this.$emit('input', cm.getValue())
+      this.$emit('changed', {id: this.id, data: cm.getValue()})
     })
   },
   methods: {

@@ -16,10 +16,21 @@ const pageData = {
           break
         }
       }
+    },
+    DEL_OTHERS_PAGE_DATA: (state, id) => {
+      for (const [i, v] of state.pageDatas.entries()) {
+        if (v.id === id) {
+          state.pageDatas = state.pageDatas.slice(i, i + 1)
+          break
+        }
+      }
+    },
+    DEL_ALL_PAGE_DATA: (state) => {
+      state.pageDatas = []
     }
   },
   actions: {
-    SavePageData({ commit }, data) {
+    savePageData({ commit }, data) {
       let temp = JSON.parse(JSON.stringify(data, function(k, v){
           if(v === undefined){
               return "";
@@ -27,12 +38,16 @@ const pageData = {
               return v;
           }
       }))
-      // console.log('save page data ' + data.id)
       commit('SET_PAGE_DATA', temp)
     },
-    DeletePageData({ commit }, id) {
-      // console.log('delete page data ' + id)
+    deletePageData({ commit }, id) {
       commit('DELETE_PAGE_DATA', id)
+    },
+    delOthersViews({ commit, state }, id) {
+      commit('DEL_OTHERS_PAGE_DATA', id)
+    },
+    delAllViews({ commit, state }) {
+      commit('DEL_ALL_PAGE_DATA')
     }
   }
 }

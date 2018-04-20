@@ -24,3 +24,15 @@ export function disableData(src) {
   	data
   })
 }
+
+export function testRuleItem(data) {
+  return request({
+    url: '/ruleItem/test',
+    method: 'post',
+    headers: {'Content-Type':'application/json; charset=utf-8'},
+    transformRequest: [function(data) {
+      return JSON.stringify(data)
+    }],
+    data
+  })
+}

@@ -9,13 +9,14 @@
     <el-card>
       <div slot="header">
         <span>规则逻辑</span>
+        <el-button v-if="update_permission(entityName)" @click="chooseRuleItemLogic()" type="primary">选 择</el-button>
       </div>
       <el-form :rules="rules" ref="expressionForm" :model="ruleItemData" label-position="left" label-width="145px">
         <el-form-item label="表达式" prop="fRuleExpression">
-          <el-input type="textarea" v-model="ruleItemData.fRuleExpression"></el-input>
+          <el-input type="textarea" v-model="ruleItemData.fRuleExpression" placeholder="表达式编写请查看语法手册"></el-input>
         </el-form-item>
         <el-form-item label="变量列表(';'号分割)" prop="fRuleVariableList">
-          <el-input v-model="ruleItemData.fRuleVariableList"></el-input>
+          <el-input v-model="ruleItemData.fRuleVariableList" placeholder="形如'age;sex', 每个参数名使用';'分割即可"></el-input>
         </el-form-item>
         <el-form-item label="黑名单类型">
           <el-select class="filter-item" v-model="ruleItemData.fBlacklistType">
@@ -29,7 +30,7 @@
             <el-option :value="7" label="其他类"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="命中描述">
+        <el-form-item label="命中描述" placeholder="当规则命中时, 此描述存入结果中, 可使用规则参数如 '年龄不大于' + M + '岁' , M为一个规则参数">
           <el-input type="textarea" v-model="ruleItemData.fPostHandleReason"></el-input>
         </el-form-item>
       </el-form>
@@ -171,17 +172,177 @@
         </el-table-column>
       </el-table>
     </el-card>
+
+    <el-dialog title="测试" :visible.sync="testDialogFormVisible" width="80%" :close-on-click-modal="false">
+      <el-collapse>
+        <el-collapse-item title="测试说明" name="testDescription">
+          <ul>
+            <li>
+              <span>变量来源由变量列表分割而成，若以下无规则项所需变量，请检查变量列表的设置。</span>
+            </li>
+            <li>
+              <span>常量来源由常量参数列表提供，若结果中常量与预期不符，请检查常量列表的设置。</span>
+            </li>
+            <li>
+              <span>请严格选择变量类型，测试程序依靠此类型处理变量。</span>
+            </li>
+            <li>
+              <span>JsonObject、JsonArray的变量类型严格遵守json语法。</span>
+            </li>
+          </ul>
+        </el-collapse-item>
+        <el-collapse-item title="当前测试表达式" name="ruleExpression">
+          <ul>
+            <li><span>{{ ruleItemData.fRuleExpression }}</span></li>
+          </ul>
+        </el-collapse-item>
+      </el-collapse>
+      <el-form ref="testData" :model="testData" label-position="left" label-width="130px" class="test-form">
+        <el-form-item label="业务ID" prop="appId">
+          <el-select class="filter-item" v-model="testData.appId" placeholder="请选择">
+            <el-option v-for="item in appList" :key="item.id" :label="item.id" :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item v-for="variable in testData.variables" :label="variable.name" :key="variable.name">
+          <el-select class="filter-item" v-model="variable.type">
+            <el-option value="JsonObject" label="JsonObject"></el-option>
+            <el-option value="JsonArray" label="JsonArray"></el-option>
+            <el-option value="Integer" label="Integer"></el-option>
+            <el-option value="Long" label="Long"></el-option>
+            <el-option value="String" label="String"></el-option>
+            <el-option value="Double" label="Double"></el-option>
+            <el-option value="Boolean" label="Boolean"></el-option>
+          </el-select>
+          <el-input class="filter-item" v-if="variable.type != 'JsonArray' && variable.type != 'JsonObject'" 
+            v-model="variable.value" style="margin-top:10px;"></el-input>
+          <json-editor v-else v-model="variable.value" style="margin-top:10px;" :id="variable.name" @changed="jsonInput"></json-editor>
+        </el-form-item>
+        <el-card>
+          <div slot="header">
+            <span>测试结果</span>
+          </div>
+          <div>
+            <span>{{ testResult.msg }}</span>
+          </div>
+          <div>
+            <span>{{ testResultResult }}</span>
+          </div>
+          <div>
+            <span>{{ testResultDescription }}</span>
+          </div>
+        </el-card>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="testDialogFormVisible = false">{{$t('table.cancel')}}</el-button>
+        <el-button type="primary" @click="handleTest">测 试</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="选择规则逻辑" :visible.sync="logicDialogFormVisible" width="80%">
+      <div class="app-container calendar-list-container">
+        <div class="header-container">
+          <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="表达式" v-model="listQuery.ruleExpression">
+          </el-input>
+          <el-input clearable @keyup.enter.native="handleFilter" class="filter-item" placeholder="说明" v-model="listQuery.remark">
+          </el-input>
+          <el-button class="filter-btn" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
+          <el-button class="filter-btn" type="primary" v-waves icon="el-icon-refresh" @click="handleResetFilter">{{$t('table.reset')}}</el-button>
+        </div>
+
+        <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="加载中..." border stripe fit highlight-current-row style="width: 100%">
+          <el-table-column type="expand">
+            <template slot-scope="scope">
+              <el-form label-position="left" inline class="xn-table-expand">
+                <el-form-item label="创建时间">
+                  <span>{{ scope.row.fCreateTime | parseTime}}</span>
+                </el-form-item>
+                <el-form-item label="创建人">
+                  <span>{{ scope.row.fCreateUser }}</span>
+                </el-form-item>
+              </el-form>
+            </template>
+          </el-table-column>
+          <el-table-column width="65" align="center" :label="$t('table.id')">
+            <template slot-scope="scope">
+              <span>{{scope.row.fAutoId}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column min-width="450px" label="表达式">
+            <template slot-scope="scope">
+              <span>{{scope.row.fRuleExpression}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column width="400px" label="说明">
+            <template slot-scope="scope">
+              <span>{{scope.row.fRemark}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column width="200px" label="常量列表">
+            <template slot-scope="scope">
+              <span>{{scope.row.fRuleParamList}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column width="200px" label="变量列表">
+            <template slot-scope="scope">
+              <span>{{scope.row.fRuleVariableList}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column width="100px" align="center" label="黑名单类型">
+            <template slot-scope="scope">
+              <span>{{scope.row.fBlacklistType | blacklistTypeFilter}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column width="180px" label="更新时间">
+            <template slot-scope="scope">
+              <span>{{ scope.row.fUpdateTime | parseTime}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column width="100px" label="更新人">
+            <template slot-scope="scope">
+              <span>{{ scope.row.fUpdateUser }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" :label="$t('table.actions')" width="80px" class-name="small-padding fixed-width" fixed="right">
+            <template slot-scope="scope">
+              <el-button v-if="update_permission(entityName)" type="success" class="xn-btn-mini" icon="el-icon-plus" @click="handleChooseRuleItemLogic(scope.row)"></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <div class="pagination-container">
+          <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30,50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
+          </el-pagination>
+        </div>
+      </div>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="logicDialogFormVisible = false">{{$t('table.cancel')}}</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import waves from '@/directive/waves' // 水波纹指令
 import tableUtil from '@/utils/tableUtil'
-import { createData, updateData } from '@/api/common'
+import { fetchList, createData, updateData, deleteData } from '@/api/common'
 import { Message } from 'element-ui'
 import { mapGetters } from 'vuex'
 import store from '@/store'
-import { queryData } from '@/api/ruleItem'
+import { queryData, testRuleItem } from '@/api/ruleItem'
+import JsonEditor from '@/components/JsonEditor'
+
+const blackListTypeMap = {
+  0:'无分类(默认)',
+  1:'外部机构输入',
+  2:'牛贷系严重逾期',
+  3:'骗贷中介',
+  4:'赌博、吸毒、犯罪黑名单',
+  5:'集团线下黑名单',
+  6:'贷后提报欺诈',
+  7:'其他类'
+}
 
 function generateRuleItem() {
   return {
@@ -220,29 +381,52 @@ function generateData() {
       fOrder: [{ required: true, message: '排序必填', trigger: 'blur' }]
     },
     multipleSelection: [],
-    newRuleParamTempId: 0
+    newRuleParamTempId: 0,
+    testData: {
+      appId: undefined,
+      variables: []
+    },
+    testResult: {},
+    testDialogFormVisible: false,
+    logicDialogFormVisible: false,
+    listQuery: {
+      ruleExpression: undefined,
+      remark: undefined
+    },
   }
-}
-
-function generatePageId(ruleSetId, ruleItemId) {
-  if (ruleItemId === undefined) {
-    ruleItemId = ''
-  }
-  return 'editRuleItem-' + ruleSetId + '-' + ruleItemId
 }
 
 function saveData(vm) {
-  return store.dispatch('SavePageData', {id: generatePageId(vm.ruleItemData.fRuleSetId, vm.ruleItemData.fAutoId), data: vm.$data}).then(() => {
+  if (!vm.isVisitedViews(vm.$route.path)) {
+    return
+  }
+  return store.dispatch('savePageData', {id: vm.$route.path, data: vm.$data}).then(() => {
     vm.$data.ruleItemData = generateRuleItem()
     vm.$data.multipleSelection = []
     vm.$data.newRuleParamTempId = 0
   })
 }
 
+function resetTestData(vm) {
+  vm.$data.testData.variables = []
+  let variableList = vm.$data.ruleItemData.fRuleVariableList
+  if (variableList === undefined || variableList === '') {
+    return
+  }
+  let temp = variableList.split(';')
+  for (let t in temp) {
+    vm.$data.testData.variables.push({
+      name: temp[t],
+      type: '',
+      value: ''
+    })
+  }
+}
+
 function restoreData(vm, route) {
   let ruleSetId = route.params.ruleSetId
   let ruleItemId = route.params.ruleItemId
-  let temp = vm.pageData(generatePageId(ruleSetId, ruleItemId))
+  let temp = vm.pageData(route.path)
   if (temp != undefined) {
     for (let key in temp.data) {
       vm.$data[key] = temp.data[key]
@@ -255,10 +439,11 @@ function restoreData(vm, route) {
         for (let key in response.data) {
           vm.$data.ruleItemData[key] = response.data[key]
         }
+        resetTestData(vm)
       })
     }
   }
-  store.dispatch('DeletePageData', generatePageId(ruleSetId, ruleItemId))
+  store.dispatch('deletePageData', route.path)
 }
 
 export default {
@@ -266,12 +451,35 @@ export default {
   directives: {
     waves
   },
+  components: {
+    JsonEditor
+  },
   mixins: [tableUtil],
   computed: {
     ...mapGetters([
       'data_permission_name',
-      'pageData'
-    ])
+      'pageData',
+      'isVisitedViews'
+    ]),
+    testResultResult() {
+      let result = this.testResult.onceResult
+      if (result === undefined || result === '') {
+        return ''
+      }
+      return '规则结果：' + (result ? '不命中' : '命中')
+    },
+    testResultDescription() {
+      let description = this.testResult.postHandleReason
+      if (description === undefined || description === '') {
+        return ''
+      }
+      return '规则若命中，结果描述：' + description
+    }
+  },
+  watch: {
+    'ruleItemData.fRuleVariableList': function() {
+      resetTestData(this)
+    }
   },
   beforeRouteEnter(to, from, next) {
     next((vm) => {
@@ -346,7 +554,7 @@ export default {
       this.$router.push({ path: '/application/ruleItem/' + this.ruleItemData.fRuleSetId})
     },
     testRuleItem() {
-
+      this.testDialogFormVisible = true
     },
     confirmEditRuleItem() {
       this.ruleItemData.ruleParams = this.ruleItemData.ruleParams.filter((ruleParam) => {
@@ -387,7 +595,68 @@ export default {
         }
       })
     },
+    jsonInput(payload) {
+      if (payload === undefined) {
+        return
+      }
+      for(let temp of this.testData.variables) {
+        if (temp.name === payload.id) {
+          temp.value = payload.data
+          break;
+        }
+      }
+    },
+    handleTest() {
+      let temp = {}
+      temp.variables = this.testData.variables
+      temp.expression = this.ruleItemData.fRuleExpression
+      temp.ruleParam = this.ruleItemData.ruleParams
+      temp.passCondition = this.ruleItemData.fPassCondition
+      temp.postHandleReason = this.ruleItemData.fPostHandleReason
+      temp.checkVariableNull = this.ruleItemData.fCheckVariableNull
+      temp.appId = this.testData.appId
+      testRuleItem(temp).then(response => {
+        this.testResult = response.data
+      })
+    },
+    chooseRuleItemLogic() {
+      this.logicDialogFormVisible = true
+      this.getList()
+    },
+    getList() {
+      this.listLoading = true
+      fetchList('ruleItemLogic', this.listQuery).then(response => {
+        this.list = response.data.data
+        this.total = response.data.total
+        this.listLoading = false
+      })
+    },
+    handleChooseRuleItemLogic(row) {
+      this.logicDialogFormVisible = false
+      this.ruleItemData.fRuleExpression = row.fRuleExpression
+      this.ruleItemData.fBlacklistType = row.fBlacklistType
+      this.ruleItemData.fRuleVariableList = row.fRuleVariableList
+      this.ruleItemData.fPostHandleReason = row.fRemark
+      let temp = row.fRuleParamList.split(';')
+      for (let t of temp) {
+        this.ruleItemData.ruleParams.push({
+          save: true,
+          edit: false,
+          id: this.newRuleParamTempId,
+          fParamName: t,
+          fParamType: "Integer",
+          fParamValue: "",
+          fRemark: ""
+        })
+        this.newRuleParamTempId++
+      }
+    }
   },
+  filters: {
+    blacklistTypeFilter(blackListType) {
+      return blackListTypeMap[blackListType]
+    }
+  }
 }
 </script>
 
@@ -395,5 +664,8 @@ export default {
 .xn-btn-mini {
   padding: 5px 5px;
   width: 40px;
+}
+.test-form {
+  margin-top: 10px;
 }
 </style>

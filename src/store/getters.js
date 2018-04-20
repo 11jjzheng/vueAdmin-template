@@ -2,6 +2,9 @@ const getters = {
   sidebar: state => state.app.sidebar,
   language: state => state.app.language,
   visitedViews: state => state.tagsView.visitedViews,
+  isVisitedViews: state => path => {
+    return state.tagsView.visitedViews.find(v => v.path === path)
+  },
   cachedViews: state => state.tagsView.cachedViews,
   user: state => state.user.user,
   token: state => state.user.token,
